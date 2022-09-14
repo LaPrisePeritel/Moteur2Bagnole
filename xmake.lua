@@ -1,14 +1,17 @@
 add_rules("mode.debug", "mode.release")
 
-add_requires("libsdl")
+add_requires("libsdl", "libsdl_image")
 
 target("A4Engine")
     set_kind("binary")
     add_headerfiles("include/*.h", "include/*.hpp")
     add_includedirs("include")
     add_files("src/*.cpp")
-    add_packages("libsdl")
+    add_packages("libsdl", "libsdl_image")
 
+    set_rundir("bin") -- Le dossier courant lors de l'exécution des binaires (depuis VS) - c'est depuis ce dossier que les chemins commencent
+    set_targetdir("bin/$(plat)_$(arch)_$(mode)") -- Le dossier de sortie des binaires, les $(X) sont remplacés par les valeurs existantes (plat = windows, arch = x64 et mode = debug)
+    
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

@@ -1,6 +1,7 @@
 # Xmake cache
 .xmake/
-bin/
+bin/*
+!bin/assets
 build/
 vs*/
 

@@ -16,6 +16,11 @@ void SDLppRenderer::Clear()
 	SDL_RenderClear(m_renderer);
 }
 
+SDL_Renderer* SDLppRenderer::GetHandle()
+{
+	return m_renderer;
+}
+
 void SDLppRenderer::Present()
 {
 	SDL_RenderPresent(m_renderer);
