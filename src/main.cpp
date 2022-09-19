@@ -9,8 +9,8 @@ int main(int argc, char** argv)
 {
     SDLpp sdl;
 
-	SDLppWindow window("A4Engine", 1280, 720);
-	SDLppRenderer renderer(window);
+    SDLppWindow window("A4Engine", 1280, 720);
+    SDLppRenderer renderer(window);
 
     SDLppTexture monbeauchat = SDLppTexture::LoadFromFile(renderer, "assets/karmeliet.jpg");
 
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
         rect.w = 1422 / 4;
         rect.h = 1347 / 4;
 
-        SDL_RenderCopy(renderer.GetHandle(), monbeauchat.GetHandle(), nullptr, &rect);
+        renderer.RenderCopy(monbeauchat, rect);
         renderer.Present();
     }
 

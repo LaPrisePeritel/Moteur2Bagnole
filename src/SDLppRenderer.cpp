@@ -1,4 +1,5 @@
 #include "SDLppRenderer.hpp"
+#include "SDLppTexture.hpp"
 #include "SDLppWindow.hpp"
 
 SDLppRenderer::SDLppRenderer(SDLppWindow& window)
@@ -24,6 +25,21 @@ SDL_Renderer* SDLppRenderer::GetHandle()
 void SDLppRenderer::Present()
 {
 	SDL_RenderPresent(m_renderer);
+}
+
+void SDLppRenderer::RenderCopy(const SDLppTexture& texture)
+{
+	SDL_RenderCopy(m_renderer, texture.GetHandle(), nullptr, nullptr);
+}
+
+void SDLppRenderer::RenderCopy(const SDLppTexture& texture, const SDL_Rect& dst)
+{
+	SDL_RenderCopy(m_renderer, texture.GetHandle(), nullptr, &dst);
+}
+
+void SDLppRenderer::RenderCopy(const SDLppTexture& texture, const SDL_Rect& src, const SDL_Rect& dst)
+{
+	SDL_RenderCopy(m_renderer, texture.GetHandle(), &src, &dst);
 }
 
 void SDLppRenderer::SetDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
