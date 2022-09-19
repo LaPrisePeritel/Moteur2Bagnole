@@ -1,5 +1,6 @@
 #include "SDLppSurface.hpp"
 #include <SDL_image.h>
+#include <iostream>
 
 SDLppSurface::SDLppSurface(SDLppSurface&& surface) noexcept
 {
@@ -30,7 +31,11 @@ SDLppSurface& SDLppSurface::operator=(SDLppSurface&& Surface) noexcept
 
 SDLppSurface SDLppSurface::LoadFromFile(const std::string& filepath)
 {
-	return SDLppSurface(IMG_Load(filepath.c_str()));
+	SDL_Surface* surface = IMG_Load(filepath.c_str());
+	if (!surface)
+		std::cerr << IMG_GetError() << std::endl;
+
+	return SDLppSurface(surface);
 }
 
 SDLppSurface::SDLppSurface(SDL_Surface* surface) :

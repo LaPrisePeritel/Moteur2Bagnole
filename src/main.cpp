@@ -1,9 +1,11 @@
 #include <iostream>
 #include <SDL.h>
+#include <SDL_image.h>
 #include "SDLpp.hpp"
 #include "SDLppWindow.hpp"
 #include "SDLppRenderer.hpp"
 #include "SDLppTexture.hpp"
+#include "Sprite.hpp"
 
 int main(int argc, char** argv)
 {
@@ -13,6 +15,7 @@ int main(int argc, char** argv)
     SDLppRenderer renderer(window);
 
     SDLppTexture monbeauchat = SDLppTexture::LoadFromFile(renderer, "assets/karmeliet.jpg");
+    Sprite sprite(monbeauchat);
 
     bool isOpen = true;
     while (isOpen)
@@ -27,13 +30,16 @@ int main(int argc, char** argv)
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
 
+        /*
         SDL_Rect rect;
         rect.x = 147;
         rect.y = 257;
         rect.w = 1422 / 4;
         rect.h = 1347 / 4;
+        */
 
-        renderer.RenderCopy(monbeauchat, rect);
+        sprite.Draw(renderer, 147, 257);
+        //renderer.RenderCopy(monbeauchat, rect);
         renderer.Present();
     }
 

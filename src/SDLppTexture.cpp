@@ -20,6 +20,16 @@ SDL_Texture* SDLppTexture::GetHandle() const
 	return m_texture;
 }
 
+SDL_Rect SDLppTexture::GetRect() const
+{
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.y = 0;
+	SDL_QueryTexture(m_texture, nullptr, nullptr, &rect.w, &rect.h);
+
+	return rect;
+}
+
 SDLppTexture& SDLppTexture::operator=(SDLppTexture&& texture) noexcept
 {
 	// On possède déjà potentiellement une texture
