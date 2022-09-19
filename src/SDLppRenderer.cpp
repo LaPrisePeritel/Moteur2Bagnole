@@ -7,6 +7,12 @@ SDLppRenderer::SDLppRenderer(SDLppWindow& window)
 	m_renderer = SDL_CreateRenderer(window.GetHandle(), 0, 0);
 }
 
+SDLppRenderer::SDLppRenderer(SDLppRenderer&& renderer) noexcept
+{
+	m_renderer = renderer.m_renderer;
+	renderer.m_renderer = nullptr;
+}
+
 SDLppRenderer::~SDLppRenderer()
 {
 	SDL_DestroyRenderer(m_renderer);
@@ -17,7 +23,7 @@ void SDLppRenderer::Clear()
 	SDL_RenderClear(m_renderer);
 }
 
-SDL_Renderer* SDLppRenderer::GetHandle()
+SDL_Renderer* SDLppRenderer::GetHandle() const
 {
 	return m_renderer;
 }
@@ -45,4 +51,10 @@ void SDLppRenderer::RenderCopy(const SDLppTexture& texture, const SDL_Rect& src,
 void SDLppRenderer::SetDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
 	SDL_SetRenderDrawColor(m_renderer, r, g, b, a);
+}
+
+SDLppRenderer& SDLppRenderer::operator=(SDLppRenderer&& renderer) noexcept
+{
+	std::swap(m_renderer, renderer.m_renderer);
+	return *this;
 }
