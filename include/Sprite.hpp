@@ -21,6 +21,8 @@ class Sprite // Une portion d'une texture
 
 		void Resize(int width, int height);
 
+		void SetRect(SDL_Rect rect);
+
 		Sprite& operator=(const Sprite&) = delete;
 		Sprite& operator=(Sprite&&) = delete;
 

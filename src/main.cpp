@@ -14,13 +14,20 @@ int main(int argc, char** argv)
     SDLppWindow window("A4Engine", 1280, 720);
     SDLppRenderer renderer(window);
 
-    SDLppTexture monbeauchat = SDLppTexture::LoadFromFile(renderer, "assets/karmeliet.jpg");
-    Sprite sprite(monbeauchat);
-    sprite.Resize(sprite.GetWidth() / 4, sprite.GetHeight() / 4);
+    SDLppTexture runner = SDLppTexture::LoadFromFile(renderer, "assets/runner.png");
+    Sprite sprite(runner);
+    sprite.Resize(256, 256);
+
+    sprite.SetRect(SDL_Rect{ 0, 0, 32, 32 });
+
+    Uint64 lastUpdate = SDL_GetPerformanceCounter();
 
     bool isOpen = true;
     while (isOpen)
     {
+        Uint64 now = SDL_GetPerformanceCounter();
+        float deltaTime = (float) (now - lastUpdate) / SDL_GetPerformanceFrequency();
+
         SDL_Event event;
         while (SDLpp::PollEvent(&event))
         {
