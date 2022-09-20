@@ -16,6 +16,7 @@ int main(int argc, char** argv)
 
     SDLppTexture monbeauchat = SDLppTexture::LoadFromFile(renderer, "assets/karmeliet.jpg");
     Sprite sprite(monbeauchat);
+    sprite.Resize(sprite.GetWidth() / 4, sprite.GetHeight() / 4);
 
     bool isOpen = true;
     while (isOpen)
@@ -30,16 +31,7 @@ int main(int argc, char** argv)
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
 
-        /*
-        SDL_Rect rect;
-        rect.x = 147;
-        rect.y = 257;
-        rect.w = 1422 / 4;
-        rect.h = 1347 / 4;
-        */
-
         sprite.Draw(renderer, 147, 257);
-        //renderer.RenderCopy(monbeauchat, rect);
         renderer.Present();
     }
 
