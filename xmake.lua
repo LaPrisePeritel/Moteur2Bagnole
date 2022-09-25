@@ -2,6 +2,9 @@ add_rules("mode.debug", "mode.release")
 
 add_requires("libsdl", "libsdl_image")
 
+set_allowedarchs("windows|x64")
+set_warnings("allextra")
+
 target("A4Engine")
     set_kind("binary")
     add_headerfiles("include/*.h", "include/*.hpp")
