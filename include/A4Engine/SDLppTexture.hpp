@@ -1,12 +1,13 @@
 #pragma once
 
+#include <A4Engine/Export.hpp>
 #include <SDL.h>
 #include <string>
 
 class SDLppRenderer;
 class SDLppSurface;
 
-class SDLppTexture
+class A4ENGINE_API SDLppTexture
 {
 	public:
 		SDLppTexture(const SDLppTexture&) = delete; // constructeur par copie

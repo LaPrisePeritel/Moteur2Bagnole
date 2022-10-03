@@ -1,15 +1,17 @@
 #pragma once
 
+#include <A4Engine/Export.hpp>
+#include <memory>
 #include <SDL.h>
 
 class SDLppRenderer;
 class SDLppTexture;
 
-class Sprite // Une portion d'une texture
+class A4ENGINE_API Sprite // Une portion d'une texture
 {
 	public:
-		Sprite(const SDLppTexture& texture);
-		Sprite(const SDLppTexture& texture, const SDL_Rect& rect);
+		Sprite(std::shared_ptr<const SDLppTexture> texture);
+		Sprite(std::shared_ptr<const SDLppTexture> texture, const SDL_Rect& rect);
 		Sprite(const Sprite&) = default;
 		Sprite(Sprite&&) = default;
 		~Sprite() = default;
@@ -24,10 +26,10 @@ class Sprite // Une portion d'une texture
 		void SetRect(SDL_Rect rect);
 
 		Sprite& operator=(const Sprite&) = delete;
-		Sprite& operator=(Sprite&&) = delete;
+		Sprite& operator=(Sprite&&) = default;
 
 	private:
-		const SDLppTexture& m_texture;
+		std::shared_ptr<const SDLppTexture> m_texture;
 		SDL_Rect m_rect;
 		int m_width;
 		int m_height;

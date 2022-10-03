@@ -1,11 +1,12 @@
 #pragma once
 
+#include <A4Engine/Export.hpp>
 #include <SDL.h>
 
 class SDLppTexture;
 class SDLppWindow;
 
-class SDLppRenderer
+class A4ENGINE_API SDLppRenderer
 {
 	public:
 		SDLppRenderer(SDLppWindow& window);

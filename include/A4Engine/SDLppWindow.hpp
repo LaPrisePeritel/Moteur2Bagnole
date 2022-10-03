@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
+#include <A4Engine/Export.hpp>
 #include <SDL.h>
+#include <string>
 
-class SDLppWindow
+class A4ENGINE_API SDLppWindow
 {
 	public:
 		SDLppWindow(const std::string& title, int width, int height, Uint32 flags = 0);

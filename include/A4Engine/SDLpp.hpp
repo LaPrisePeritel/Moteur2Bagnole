@@ -1,8 +1,10 @@
 #pragma once
 
-#include <SDL.h>
+#include <A4Engine/Export.hpp>
 
-class SDLpp
+union SDL_Event;
+
+class A4ENGINE_API SDLpp
 {
 	public:
 		SDLpp();

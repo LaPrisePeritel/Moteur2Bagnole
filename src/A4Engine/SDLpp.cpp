@@ -1,4 +1,4 @@
-#include "SDLpp.hpp"
+#include <A4Engine/SDLpp.hpp>
 #include <SDL.h>
 
 SDLpp::SDLpp()
