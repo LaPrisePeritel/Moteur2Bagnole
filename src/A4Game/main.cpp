@@ -1,6 +1,5 @@
 #include <iostream>
 #include <SDL.h>
-#include <SDL_image.h>
 #include <A4Engine/InputManager.hpp>
 #include <A4Engine/ResourceManager.hpp>
 #include <A4Engine/SDLpp.hpp>
