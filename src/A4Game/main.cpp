@@ -30,6 +30,8 @@ int main(int argc, char** argv)
     SDLppWindow window("A4Engine", 1280, 720);
     SDLppRenderer renderer(window);
 
+    ResourceManager resourceManager(renderer);
+
     InputManager::Instance().BindKeyPressed(SDLK_h, "SayHello");
     InputManager::Instance().BindMouseButtonPressed(MouseButton::Right, "SayHello");
 
@@ -38,7 +40,7 @@ int main(int argc, char** argv)
         std::cout << "Hello world" << std::endl;
     });
 
-    Sprite sprite(ResourceManager::Instance().GetTexture(renderer, "assets/runner.png"));
+    Sprite sprite(ResourceManager::Instance().GetTexture("assets/runer.png"));
     sprite.Resize(256, 256);
 
     sprite.SetRect(SDL_Rect{ 0, 0, 32, 32 });

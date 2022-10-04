@@ -1,8 +1,29 @@
 #include <A4Engine/ResourceManager.hpp>
 #include <A4Engine/SDLppSurface.hpp>
 #include <A4Engine/SDLppTexture.hpp>
+#include <stdexcept>
 
-const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(SDLppRenderer& renderer, const std::string& texturePath)
+ResourceManager::ResourceManager(SDLppRenderer& renderer) :
+m_renderer(renderer)
+{
+	if (s_instance != nullptr)
+		throw std::runtime_error("only one ResourceManager can exist");
+
+	s_instance = this;
+}
+
+ResourceManager::~ResourceManager()
+{
+	s_instance = nullptr;
+}
+
+void ResourceManager::Clear()
+{
+	m_missingTexture.reset();
+	m_textures.clear();
+}
+
+const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(const std::string& texturePath)
 {
 	// Avons-nous déjà cette texture en stock ?
 	auto it = m_textures.find(texturePath);
@@ -32,10 +53,10 @@ const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(SDLppRenderer& 
 	}
 
 	// On a réussi à charger la surface, on la transforme en texture et on l'enregistre
-	std::shared_ptr<SDLppTexture> texture = std::make_shared<SDLppTexture>(SDLppTexture::LoadFromSurface(renderer, surface));
+	std::shared_ptr<SDLppTexture> texture = std::make_shared<SDLppTexture>(SDLppTexture::LoadFromSurface(m_renderer, surface));
 
 	// .emplace et .insert renvoient un std::pair<iterator, bool>, le booléen indiquant si la texture a été insérée dans la map (ce qu'on sait déjà ici)
-	it = m_textures.emplace(texturePath, std::move(texture)).first;
+	it = m_textures.emplace(std::move(texture)).first;
 
 	// Attention, on ne peut pas renvoyer texture directement (même sans std::move) car on renvoie une référence constante
 	// qui serait alors une référence constante sur une variable temporaire détruite à la fin de la fonction (texture)
@@ -49,7 +70,7 @@ void ResourceManager::Purge()
 	for (auto it = m_textures.begin(); it != m_textures.end(); ) //< pas d'incrémentation de it
 	{
 		// On vérifie le compteur pour vérifier si la texture est utilisée ailleurs ou non
-		if (it->second.use_count() > 1)
+		if (!it->second.unique())
 		{
 			++it; // la texture est utilisée, on la garde et on passe à la suivante
 		}
@@ -64,6 +85,10 @@ void ResourceManager::Purge()
 
 ResourceManager& ResourceManager::Instance()
 {
-	static ResourceManager resourceManager;
-	return resourceManager;
+	if (s_instance == nullptr)
+		throw std::runtime_error("ResourceManager hasn't been created");
+
+	return *s_instance; 
 }
+
+ResourceManager* ResourceManager::s_instance = nullptr;

@@ -10,12 +10,14 @@ class SDLppTexture;
 class A4ENGINE_API ResourceManager
 {
 	public:
-		ResourceManager() = default;
+		ResourceManager(SDLppRenderer& renderer);
 		ResourceManager(const ResourceManager&) = delete;
 		ResourceManager(ResourceManager&&) = delete;
-		~ResourceManager() = default;
+		~ResourceManager();
 
-		const std::shared_ptr<SDLppTexture>& GetTexture(SDLppRenderer& renderer, const std::string& texturePath);
+		void Clear();
+
+		const std::shared_ptr<SDLppTexture>& GetTexture(const std::string& texturePath);
 
 		void Purge();
 
@@ -27,4 +29,7 @@ class A4ENGINE_API ResourceManager
 	private:
 		std::shared_ptr<SDLppTexture> m_missingTexture;
 		std::unordered_map<std::string /*texturePath*/, std::shared_ptr<SDLppTexture>> m_textures;
+		SDLppRenderer& m_renderer;
+
+		static ResourceManager* s_instance;
 };
