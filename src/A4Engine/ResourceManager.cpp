@@ -44,7 +44,7 @@ const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(const std::stri
 			surface.FillRect(SDL_Rect{ 0, 16, 16, 16 }, 0, 0, 0, 255);
 			surface.FillRect(SDL_Rect{ 16, 16, 16, 16 }, 255, 0, 255, 255);
 
-			m_missingTexture = std::make_shared<SDLppTexture>(SDLppTexture::LoadFromSurface(renderer, surface));
+			m_missingTexture = std::make_shared<SDLppTexture>(SDLppTexture::LoadFromSurface(m_renderer, surface));
 		}
 		
 		// On enregistre cette texture comme une texture manquante (pour ne pas essayer de la charger à chaque fois)
@@ -56,7 +56,7 @@ const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(const std::stri
 	std::shared_ptr<SDLppTexture> texture = std::make_shared<SDLppTexture>(SDLppTexture::LoadFromSurface(m_renderer, surface));
 
 	// .emplace et .insert renvoient un std::pair<iterator, bool>, le booléen indiquant si la texture a été insérée dans la map (ce qu'on sait déjà ici)
-	it = m_textures.emplace(std::move(texture)).first;
+	it = m_textures.emplace(texturePath, std::move(texture)).first;
 
 	// Attention, on ne peut pas renvoyer texture directement (même sans std::move) car on renvoie une référence constante
 	// qui serait alors une référence constante sur une variable temporaire détruite à la fin de la fonction (texture)
