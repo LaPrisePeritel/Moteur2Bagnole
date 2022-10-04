@@ -10,12 +10,12 @@ struct Vector2
 	explicit Vector2(T V); //< explicit permet d'éviter les conversions implicites, sans ça on aurait pu écrire Vector2 x = 42, ou passer un entier à une fonction attendant un Vector2
 	Vector2(T X, T Y);
 
-	Vector2 operator+(const Vector2& vec);
-	Vector2 operator-(const Vector2& vec);
-	Vector2 operator*(const Vector2& vec);
-	Vector2 operator*(T value);
-	Vector2 operator/(const Vector2& vec);
-	Vector2 operator/(T value);
+	Vector2 operator+(const Vector2& vec) const;
+	Vector2 operator-(const Vector2& vec) const;
+	Vector2 operator*(const Vector2& vec) const;
+	Vector2 operator*(T value) const;
+	Vector2 operator/(const Vector2& vec) const;
+	Vector2 operator/(T value) const;
 
 	Vector2& operator+=(const Vector2& vec);
 	Vector2& operator-=(const Vector2& vec);
