@@ -125,7 +125,7 @@ bool InputManager::IsActive(const std::string& action) const
 
 void InputManager::OnAction(std::string action, std::function<void(bool)> func)
 {
-	ActionData& actionData = GetAction(action);
+	ActionData& actionData = GetActionData(action);
 	actionData.func = std::move(func);
 }
 
@@ -137,7 +137,7 @@ InputManager& InputManager::Instance()
 	return *s_instance;
 }
 
-InputManager::ActionData& InputManager::GetAction(const std::string& action)
+InputManager::ActionData& InputManager::GetActionData(const std::string& action)
 {
 	auto it = m_actions.find(action);
 	if (it != m_actions.end())
@@ -153,7 +153,7 @@ InputManager::ActionData& InputManager::GetAction(const std::string& action)
 
 void InputManager::TriggerAction(const std::string& action)
 {
-	ActionData& actionData = GetAction(action);
+	ActionData& actionData = GetActionData(action);
 	actionData.isActive = true;
 	if (actionData.func)
 		actionData.func(true);
@@ -161,7 +161,7 @@ void InputManager::TriggerAction(const std::string& action)
 
 void InputManager::ReleaseAction(const std::string& action)
 {
-	ActionData& actionData = GetAction(action);
+	ActionData& actionData = GetActionData(action);
 	actionData.isActive = false;
 	if (actionData.func)
 		actionData.func(false);

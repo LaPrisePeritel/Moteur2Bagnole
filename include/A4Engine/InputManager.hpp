@@ -55,7 +55,7 @@ class A4ENGINE_API InputManager
 			bool isActive;
 		};
 
-		ActionData& GetAction(const std::string& action);
+		ActionData& GetActionData(const std::string& action);
 		void TriggerAction(const std::string& action);
 		void ReleaseAction(const std::string& action);
 
