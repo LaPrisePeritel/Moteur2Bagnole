@@ -30,6 +30,7 @@ int main(int argc, char** argv)
     SDLppRenderer renderer(window);
 
     ResourceManager resourceManager(renderer);
+    InputManager inputManager;
 
     InputManager::Instance().BindKeyPressed(SDLK_h, "SayHello");
     InputManager::Instance().BindMouseButtonPressed(MouseButton::Right, "SayHello");

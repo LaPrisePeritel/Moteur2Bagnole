@@ -1,4 +1,18 @@
 #include <A4Engine/InputManager.hpp>
+#include <stdexcept>
+
+InputManager::InputManager()
+{
+	if (s_instance != nullptr)
+		throw std::runtime_error("only one InputManager can be created");
+
+	s_instance = this;
+}
+
+InputManager::~InputManager()
+{
+	s_instance = nullptr;
+}
 
 void InputManager::BindKeyPressed(SDL_KeyCode keyCode, std::string action)
 {
@@ -76,8 +90,10 @@ void InputManager::OnAction(std::string action, std::function<void()> func)
 
 InputManager& InputManager::Instance()
 {
-	static InputManager inputManager;
-	return inputManager;
+	if (!s_instance)
+		throw std::runtime_error("InputManager hasn't been instantied");
+
+	return *s_instance;
 }
 
 void InputManager::TriggerAction(const std::string& action)
@@ -89,3 +105,5 @@ void InputManager::TriggerAction(const std::string& action)
 		func();
 	}
 }
+
+InputManager* InputManager::s_instance = nullptr;

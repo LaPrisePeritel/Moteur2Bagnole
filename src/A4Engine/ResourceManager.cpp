@@ -7,7 +7,7 @@ ResourceManager::ResourceManager(SDLppRenderer& renderer) :
 m_renderer(renderer)
 {
 	if (s_instance != nullptr)
-		throw std::runtime_error("only one ResourceManager can exist");
+		throw std::runtime_error("only one ResourceManager can be created");
 
 	s_instance = this;
 }
@@ -86,7 +86,7 @@ void ResourceManager::Purge()
 ResourceManager& ResourceManager::Instance()
 {
 	if (s_instance == nullptr)
-		throw std::runtime_error("ResourceManager hasn't been created");
+		throw std::runtime_error("ResourceManager hasn't been instantied");
 
 	return *s_instance; 
 }

@@ -17,10 +17,10 @@ enum class MouseButton
 class A4ENGINE_API InputManager
 {
 	public:
-		InputManager() = default;
+		InputManager();
 		InputManager(const InputManager&) = delete;
 		InputManager(InputManager&&) = delete;
-		~InputManager() = default;
+		~InputManager();
 
 		// Appuyer sur la touche "keyCode" déclenchera "action"
 		void BindKeyPressed(SDL_KeyCode keyCode, std::string action);
@@ -52,4 +52,6 @@ class A4ENGINE_API InputManager
 		std::unordered_map<SDL_GameControllerButton /*controllerButton*/, std::string /*action*/> m_controllerButtonToAction;
 		std::unordered_map<SDL_Keycode /*key*/, std::string /*action*/> m_keyToAction;
 		std::unordered_map<std::string /*action*/, std::function<void()>> m_actionToFunc;
+
+		static InputManager* s_instance;
 };
