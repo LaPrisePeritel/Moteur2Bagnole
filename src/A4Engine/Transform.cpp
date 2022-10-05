@@ -20,12 +20,15 @@ m_scale(transform.m_scale)
 }
 
 Transform::Transform(Transform&& transform) noexcept :
+m_children(std::move(transform.m_children)),
 m_parent(nullptr),
 m_position(transform.m_position),
 m_rotation(transform.m_rotation),
 m_scale(transform.m_scale)
 {
 	SetParent(transform.m_parent);
+	for (Transform* child : m_children)
+		child->m_parent = this;
 }
 
 Transform::~Transform()
@@ -34,7 +37,7 @@ Transform::~Transform()
 		m_parent->DetachChild(this);
 
 	for (Transform* child : m_children)
-		child->SetParent(nullptr);
+		child->m_parent = nullptr;
 }
 
 Transform* Transform::GetParent() const
@@ -161,10 +164,17 @@ Transform& Transform::operator=(const Transform& transform)
 
 Transform& Transform::operator=(Transform&& transform) noexcept
 {
+	for (Transform* child : m_children)
+		child->m_parent = nullptr;
+
+	m_children = std::move(transform.m_children);
 	m_position = transform.m_position;
 	m_rotation = transform.m_rotation;
 	m_scale = transform.m_scale;
 	SetParent(transform.m_parent);
+
+	for (Transform* child : m_children)
+		child->m_parent = this;
 
 	return *this;
 }
