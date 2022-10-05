@@ -34,11 +34,13 @@ int main(int argc, char** argv)
 
     InputManager::Instance().BindKeyPressed(SDLK_h, "SayHello");
     InputManager::Instance().BindMouseButtonPressed(MouseButton::Right, "SayHello");
+    Transform transform;
 
     InputManager::Instance().OnAction("SayHello", []()
     {
         std::cout << "Hello world" << std::endl;
     });
+    InputManager::Instance().BindKeyPressed(SDLK_d, "MoveRight");
 
     Sprite sprite(ResourceManager::Instance().GetTexture("assets/runer.png"));
     sprite.Resize(256, 256);
@@ -82,8 +84,14 @@ int main(int argc, char** argv)
 
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
+        if (InputManager::Instance().IsActive("MoveRight"))
+        {
+			transform.Translate(Vector2f(500.f * deltaTime, 0.f));
+        }
 
-        sprite.Draw(renderer, 147, 257);
+        Vector2f pos = transform.GetGlobalPosition();
+
+        sprite.Draw(renderer, pos.x, pos.y);
         renderer.Present();
     }
 

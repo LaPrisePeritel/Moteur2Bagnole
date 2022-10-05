@@ -37,8 +37,11 @@ class A4ENGINE_API InputManager
 		// Gère l'événement de la SDL et déclenche les actions associées, s'il y en a
 		void HandleEvent(const SDL_Event& event);
 
+		// Renvoie vrai si l'action est en cours
+		bool IsActive(const std::string& action) const;
+
 		// Lorsque l'action "action" se déclenche, on appellera "func"
-		void OnAction(std::string action, std::function<void()> func);
+		void OnAction(std::string action, std::function<void(bool)> func);
 
 		InputManager& operator=(const InputManager&) = delete;
 		InputManager& operator=(InputManager&&) = delete;
@@ -46,12 +49,20 @@ class A4ENGINE_API InputManager
 		static InputManager& Instance();
 
 	private:
+		struct ActionData
+		{
+			std::function<void(bool)> func;
+			bool isActive;
+		};
+
+		ActionData& GetAction(const std::string& action);
 		void TriggerAction(const std::string& action);
+		void ReleaseAction(const std::string& action);
 
 		std::unordered_map<int /*mouseButton*/, std::string /*action*/> m_mouseButtonToAction;
 		std::unordered_map<SDL_GameControllerButton /*controllerButton*/, std::string /*action*/> m_controllerButtonToAction;
 		std::unordered_map<SDL_Keycode /*key*/, std::string /*action*/> m_keyToAction;
-		std::unordered_map<std::string /*action*/, std::function<void()>> m_actionToFunc;
+		std::unordered_map<std::string /*action*/, ActionData> m_actions;
 
 		static InputManager* s_instance;
 };
