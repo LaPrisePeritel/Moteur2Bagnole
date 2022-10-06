@@ -8,22 +8,10 @@
 #include <A4Engine/SDLppTexture.hpp>
 #include <A4Engine/Sprite.hpp>
 #include <A4Engine/Transform.hpp>
+#include <nlohmann/json.hpp>
 
 int main(int argc, char** argv)
 {
-	Transform transform;
-	transform.SetPosition(Vector2f(42.f, -6.f));
-	transform.SetRotation(-270.f);
-	transform.SetScale(Vector2f(0.5f, 2.f));
-
-	std::cout << transform.TransformPoint(Vector2f(0.f, 0.f)) << std::endl;
-	std::cout << transform.TransformPoint(Vector2f(10.f, 0.f)) << std::endl;
-	std::cout << transform.TransformPoint(Vector2f(0.f, 10.f)) << std::endl;
-	std::cout << transform.TransformPoint(Vector2f(21.f, -3.f)) << std::endl;
-
-	transform.SetScale(Vector2f(-0.5f, -2.f));
-	std::cout << transform.TransformPoint(Vector2f(-42.f, -42.f)) << std::endl;
-
     SDLpp sdl;
 
     SDLppWindow window("A4Engine", 1280, 720);
@@ -32,17 +20,18 @@ int main(int argc, char** argv)
     ResourceManager resourceManager(renderer);
     InputManager inputManager;
 
-    InputManager::Instance().BindKeyPressed(SDLK_h, "SayHello");
-    InputManager::Instance().BindMouseButtonPressed(MouseButton::Right, "SayHello");
-    Transform transform;
+	Transform transformParent;
+	Transform transform;
+    transform.SetParent(&transformParent);
 
-    InputManager::Instance().OnAction("SayHello", []()
-    {
-        std::cout << "Hello world" << std::endl;
-    });
+	transformParent.SetPosition(Vector2f(300.f, 100.f));
+	transform.SetPosition(Vector2f(150.f, 150.f));
+
     InputManager::Instance().BindKeyPressed(SDLK_d, "MoveRight");
 
-    Sprite sprite(ResourceManager::Instance().GetTexture("assets/runer.png"));
+    std::shared_ptr<SDLppTexture> texture = ResourceManager::Instance().GetTexture("assets/runner.png");
+
+    Sprite sprite(texture);
     sprite.Resize(256, 256);
 
     sprite.SetRect(SDL_Rect{ 0, 0, 32, 32 });
@@ -52,6 +41,8 @@ int main(int argc, char** argv)
     int frameIndex = 0;
     int frameCount = 5;
     float timer = 0.0f;
+
+    float scale = 1.f;
 
     bool isOpen = true;
     while (isOpen)
@@ -84,14 +75,17 @@ int main(int argc, char** argv)
 
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
+
         if (InputManager::Instance().IsActive("MoveRight"))
         {
-			transform.Translate(Vector2f(500.f * deltaTime, 0.f));
+            scale += 0.1f * deltaTime;
+            transformParent.SetScale(Vector2f(scale, scale));
+			//transformParent.Translate(Vector2f(500.f * deltaTime, 0.f));
+            //transformParent.Rotate(30.f * deltaTime);
         }
 
-        Vector2f pos = transform.GetGlobalPosition();
-
-        sprite.Draw(renderer, pos.x, pos.y);
+        sprite.Draw(renderer, transformParent);
+        sprite.Draw(renderer, transform);
         renderer.Present();
     }
 

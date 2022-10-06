@@ -6,6 +6,7 @@
 
 class SDLppRenderer;
 class SDLppTexture;
+class Transform;
 
 class A4ENGINE_API Sprite // Une portion d'une texture
 {
@@ -16,7 +17,7 @@ class A4ENGINE_API Sprite // Une portion d'une texture
 		Sprite(Sprite&&) = default;
 		~Sprite() = default;
 
-		void Draw(SDLppRenderer& renderer, int x, int y);
+		void Draw(SDLppRenderer& renderer, const Transform& transform);
 
 		int GetHeight() const;
 		int GetWidth() const;
