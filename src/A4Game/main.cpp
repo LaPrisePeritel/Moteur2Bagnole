@@ -8,7 +8,9 @@
 #include <A4Engine/SDLppTexture.hpp>
 #include <A4Engine/Sprite.hpp>
 #include <A4Engine/Transform.hpp>
-#include <nlohmann/json.hpp>
+#include <imgui.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdlrenderer.h>
 
 int main(int argc, char** argv)
 {
@@ -20,12 +22,23 @@ int main(int argc, char** argv)
     ResourceManager resourceManager(renderer);
     InputManager inputManager;
 
-	Transform transformParent;
-	Transform transform;
+    // Setup imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL2_InitForSDLRenderer(window.GetHandle(), renderer.GetHandle());
+    ImGui_ImplSDLRenderer_Init(renderer.GetHandle());
+
+
+    Transform transformParent;
+    Transform transform;
     transform.SetParent(&transformParent);
 
-	transformParent.SetPosition(Vector2f(300.f, 100.f));
-	transform.SetPosition(Vector2f(150.f, 150.f));
+    transformParent.SetPosition(Vector2f(300.f, 100.f));
+    transform.SetPosition(Vector2f(150.f, 150.f));
 
     InputManager::Instance().BindKeyPressed(SDLK_d, "MoveRight");
 
@@ -70,8 +83,15 @@ int main(int argc, char** argv)
             if (event.type == SDL_QUIT)
                 isOpen = false;
 
+            ImGui_ImplSDL2_ProcessEvent(&event);
+
             InputManager::Instance().HandleEvent(event);
         }
+
+        // Start the Dear ImGui frame
+        ImGui_ImplSDLRenderer_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
 
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
@@ -86,8 +106,16 @@ int main(int argc, char** argv)
 
         sprite.Draw(renderer, transformParent);
         sprite.Draw(renderer, transform);
+
+		ImGui::Render();
+		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+
         renderer.Present();
-    }
+	}
+	// Cleanup
+	ImGui_ImplSDLRenderer_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
     return 0;
 }

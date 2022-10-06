@@ -1,6 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
 add_requires("libsdl", "libsdl_image")
+add_requires("imgui", { configs = { sdl2 = true }})
 
 set_allowedarchs("windows|x64")
 set_warnings("allextra")
@@ -22,6 +23,7 @@ target("A4Game")
     add_deps("A4Engine")
     add_headerfiles("include/A4Game/*.h", "include/A4Game/*.hpp")
     add_files("src/A4Game/**.cpp")
+    add_packages("imgui")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
