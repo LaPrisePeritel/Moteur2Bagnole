@@ -96,6 +96,15 @@ int main(int argc, char** argv)
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
 
+        ImGui::Begin("Window");
+
+        if (ImGui::InputFloat("Rotation", &rotation, 0.1f, 0.5f))
+        {
+            transformParent.SetRotation(rotation);
+        }
+
+        ImGui::End();
+
         if (InputManager::Instance().IsActive("MoveRight"))
         {
             scale += 0.1f * deltaTime;
