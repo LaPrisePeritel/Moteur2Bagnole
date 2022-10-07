@@ -1,6 +1,6 @@
 add_rules("mode.debug", "mode.release")
 
-add_requires("libsdl", "libsdl_image")
+add_requires("entt", "fmt", "libsdl", "libsdl_image", "nlohmann_json")
 add_requires("imgui", { configs = { sdl2 = true }})
 
 set_allowedarchs("windows|x64")
@@ -9,13 +9,15 @@ set_warnings("allextra")
 set_rundir("bin") -- Le dossier courant lors de l'exécution des binaires (depuis VS) - c'est depuis ce dossier que les chemins commencent
 set_targetdir("bin/$(plat)_$(arch)_$(mode)") -- Le dossier de sortie des binaires, les $(X) sont remplacés par les valeurs existantes (plat = windows, arch = x64 et mode = debug)
 
+set_languages("c++17")
+
 target("A4Engine")
     set_kind("shared")
     add_defines("A4ENGINE_BUILD")
     add_headerfiles("include/A4Engine/*.h", "include/A4Engine/*.hpp", "include/A4Engine/*.inl")
     add_includedirs("include", { public = true })
     add_files("src/A4Engine/**.cpp")
-    add_packages("libsdl", { public = true })
+    add_packages("libsdl", "nlohmann_json", "fmt", "entt", { public = true })
     add_packages("libsdl_image")
 
 target("A4Game")
