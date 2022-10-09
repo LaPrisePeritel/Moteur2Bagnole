@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     int frameCount = 5;
     float timer = 0.0f;
 
-    float scale = 1.f;
+    float rotation = 0.f;
 
     bool isOpen = true;
     while (isOpen)
@@ -106,12 +106,7 @@ int main(int argc, char** argv)
         ImGui::End();
 
         if (InputManager::Instance().IsActive("MoveRight"))
-        {
-            scale += 0.1f * deltaTime;
-            transformParent.SetScale(Vector2f(scale, scale));
-			//transformParent.Translate(Vector2f(500.f * deltaTime, 0.f));
-            //transformParent.Rotate(30.f * deltaTime);
-        }
+			transformParent.Translate(Vector2f(500.f * deltaTime, 0.f));
 
         sprite.Draw(renderer, transformParent);
         sprite.Draw(renderer, transform);
