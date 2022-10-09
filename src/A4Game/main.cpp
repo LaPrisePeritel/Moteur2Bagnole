@@ -40,7 +40,17 @@ int main(int argc, char** argv)
     transformParent.SetPosition(Vector2f(300.f, 100.f));
     transform.SetPosition(Vector2f(150.f, 150.f));
 
+    // ZQSD
+    InputManager::Instance().BindKeyPressed(SDLK_q, "MoveLeft");
     InputManager::Instance().BindKeyPressed(SDLK_d, "MoveRight");
+    InputManager::Instance().BindKeyPressed(SDLK_z, "MoveUp");
+    InputManager::Instance().BindKeyPressed(SDLK_s, "MoveDown");
+
+    // Touches directionnelles
+    InputManager::Instance().BindKeyPressed(SDLK_LEFT, "MoveLeft");
+    InputManager::Instance().BindKeyPressed(SDLK_RIGHT, "MoveRight");
+    InputManager::Instance().BindKeyPressed(SDLK_UP, "MoveUp");
+    InputManager::Instance().BindKeyPressed(SDLK_DOWN, "MoveDown");
 
     std::shared_ptr<SDLppTexture> texture = ResourceManager::Instance().GetTexture("assets/runner.png");
 
@@ -98,15 +108,22 @@ int main(int argc, char** argv)
 
         ImGui::Begin("Window");
 
-        if (ImGui::InputFloat("Rotation", &rotation, 0.1f, 0.5f))
-        {
+        if (ImGui::SliderFloat("Rotation", &rotation, -180.f, 180.f))
             transformParent.SetRotation(rotation);
-        }
 
         ImGui::End();
 
+        if (InputManager::Instance().IsActive("MoveDown"))
+			transformParent.Translate(Vector2f(0.f, 500.f * deltaTime));
+
+        if (InputManager::Instance().IsActive("MoveLeft"))
+			transformParent.Translate(Vector2f(-500.f * deltaTime, 0.f));
+
         if (InputManager::Instance().IsActive("MoveRight"))
 			transformParent.Translate(Vector2f(500.f * deltaTime, 0.f));
+
+        if (InputManager::Instance().IsActive("MoveUp"))
+			transformParent.Translate(Vector2f(0.f, -500.f * deltaTime));
 
         sprite.Draw(renderer, transformParent);
         sprite.Draw(renderer, transform);
