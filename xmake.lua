@@ -6,8 +6,8 @@ add_requires("imgui", { configs = { sdl2 = true }})
 set_allowedarchs("windows|x64")
 set_warnings("allextra")
 
-set_rundir("bin") -- Le dossier courant lors de l'exécution des binaires (depuis VS) - c'est depuis ce dossier que les chemins commencent
-set_targetdir("bin/$(plat)_$(arch)_$(mode)") -- Le dossier de sortie des binaires, les $(X) sont remplacés par les valeurs existantes (plat = windows, arch = x64 et mode = debug)
+set_rundir("bin")
+set_targetdir("bin/$(plat)_$(arch)_$(mode)")
 
 set_languages("c++17")
 

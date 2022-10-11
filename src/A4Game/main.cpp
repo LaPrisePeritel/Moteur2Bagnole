@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <SDL.h>
 #include <A4Engine/InputManager.hpp>
 #include <A4Engine/ResourceManager.hpp>
@@ -11,6 +12,10 @@
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
+#include <nlohmann/json.hpp>
+#include <A4Engine/Model.h>
+
+using json = nlohmann::json;
 
 int main(int argc, char** argv)
 {
@@ -21,6 +26,8 @@ int main(int argc, char** argv)
 
     ResourceManager resourceManager(renderer);
     InputManager inputManager;
+
+    Model model("assets/Models/house.model");
 
     // Setup imgui
     IMGUI_CHECKVERSION();
