@@ -33,9 +33,9 @@ SDL_Rect SDLppTexture::GetRect() const
 
 SDLppTexture& SDLppTexture::operator=(SDLppTexture&& texture) noexcept
 {
-	// On possède déjà potentiellement une texture
-	// On la donne à texture (qui va être détruit de toute façon)
-	// tout en volant son pointeur : on échange donc les pointeurs
+	// On possÃ¨de dÃ©jÃ  potentiellement une texture
+	// On la donne Ã  texture (qui va Ãªtre dÃ©truit de toute faÃ§on)
+	// tout en volant son pointeur : on Ã©change donc les pointeurs
 	// => std::swap
 	std::swap(m_texture, texture.m_texture);
 	return *this;

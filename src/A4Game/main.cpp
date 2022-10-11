@@ -12,7 +12,7 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
 
-int main(int argc, char** argv)
+int main()
 {
     SDLpp sdl;
 
@@ -25,7 +25,6 @@ int main(int argc, char** argv)
     // Setup imgui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
 

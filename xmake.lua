@@ -11,6 +11,12 @@ set_targetdir("bin/$(plat)_$(arch)_$(mode)") -- Le dossier de sortie des binaire
 
 set_languages("c++17")
 
+-- Désactivation de quelques warnings pas utiles dans notre cas avec VS
+if is_plat("windows") then
+    add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
+	add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
+end
+
 target("A4Engine")
     set_kind("shared")
     add_defines("A4ENGINE_BUILD")

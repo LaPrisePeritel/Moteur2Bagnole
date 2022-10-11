@@ -21,9 +21,9 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& transform)
 	SDL_Rect texRect = m_texture->GetRect();
 
 	Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f));
-	Vector2f topRightCorner = transform.TransformPoint(Vector2f(m_width, 0.f));
-	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, m_height));
-	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(m_width, m_height));
+	Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f));
+	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)));
+	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 
 	float invWidth = 1.f / texRect.w;
 	float invHeight = 1.f / texRect.h;
