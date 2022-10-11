@@ -20,14 +20,21 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& transform)
 {
 	SDL_Rect texRect = m_texture->GetRect();
 
+	// Calcul de la position des quatre coins du sprite dans le repère du Transform
+	// c'est à cette étape que la translation, rotation et scale du Transform vont s'appliquer
 	Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f));
 	Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f));
 	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)));
 	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 
+	// La division étant généralement plus coûteuse que la multiplication, quand on sait qu'on va faire plusieurs divisons par
+	// les mêmes valeurs on peut calculer l'inverse de la valeur pour la multiplier par la suite (X * (1 / Y) == X / Y)
 	float invWidth = 1.f / texRect.w;
 	float invHeight = 1.f / texRect.h;
 
+	// On spécifie maintenant nos vertices (sommets), composés à chaque fois d'une couleur, position et de coordonnées de texture
+	// Ceux-ci vont servir à spécifier nos triangles. Chaque triangle est composé de trois sommets qui définissent les valeurs aux extrêmités,
+	// la carte graphique allant ensuite générer les valeurs intermédiaires (par interpolation) pour les pixels composant le triangle.
 	SDL_Vertex vertices[4];
 	vertices[0].color = SDL_Color{ 255, 255, 255, 255 };
 	vertices[0].position = SDL_FPoint{ topLeftCorner.x, topLeftCorner.y };
@@ -45,6 +52,14 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& transform)
 	vertices[3].position = SDL_FPoint{ bottomRightCorner.x, bottomRightCorner.y };
 	vertices[3].tex_coord = SDL_FPoint{ (m_rect.x + m_rect.w) * invWidth, (m_rect.y + m_rect.h) * invHeight };
 
+	// On pourrait donner la liste des sommets à la SDL et lui dire de rendre des triangles (à condition d'avoir N * 3 sommets pour N triangles)
+	// néanmoins, étant donné que nous affichons deux triangles collés et partageant les mêmes données, on peut se permettre ici de réutiliser
+	// les vertices, avec les indices.
+
+	// Lorsqu'on a des indices lors du rendu, alors ceux-ci définissent les numéros des vertices qui vont composer nos triangles.
+	// ceci permet de réutiliser les vertices, permettant de consommer moins de mémoire et d'avoir un rendu plus rapide
+
+	// Six indices pour deux triangles, avec réutilisation des sommets [1] et [2]
 	int indices[6] = { 0, 1, 2, 2, 1, 3 };
 
 	SDL_RenderGeometry(renderer.GetHandle(),
