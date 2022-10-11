@@ -14,7 +14,7 @@ set_languages("c++17")
 -- Désactivation de quelques warnings pas utiles dans notre cas avec VS
 if is_plat("windows") then
     add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
-	add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
+    add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
 end
 
 target("A4Engine")
@@ -23,8 +23,7 @@ target("A4Engine")
     add_headerfiles("include/A4Engine/*.h", "include/A4Engine/*.hpp", "include/A4Engine/*.inl")
     add_includedirs("include", { public = true })
     add_files("src/A4Engine/**.cpp")
-    add_packages("libsdl", "nlohmann_json", "fmt", "entt", { public = true })
-    add_packages("libsdl_image")
+    add_packages("libsdl", "libsdl_image", "nlohmann_json", "fmt", "entt", { public = true })
 
 target("A4Game")
     set_kind("binary")

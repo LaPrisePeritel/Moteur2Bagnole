@@ -1,6 +1,8 @@
 #include <A4Engine/Transform.hpp>
 #include <A4Engine/Math.hpp>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 
 Transform::Transform() :
 m_parent(nullptr),

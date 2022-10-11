@@ -2,7 +2,8 @@
 
 #include <A4Engine/Export.hpp>
 #include <memory> //< std::shared_ptr
-#include <unordered_map> //< std::unordered_map est plus efficace que std::map pour une association clé/valeur
+#include <string> //< std::string
+#include <unordered_map> //< std::unordered_map est plus efficace que std::map pour une association clï¿½/valeur
 
 class SDLppRenderer;
 class SDLppTexture;
