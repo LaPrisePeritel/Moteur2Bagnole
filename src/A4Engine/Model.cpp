@@ -1,27 +1,29 @@
-#include <A4Engine/Model.h>
-
+#include <A4Engine/Model.hpp>
+#include <A4Engine/ResourceManager.hpp>
+#include <A4Engine/SDLppRenderer.hpp>
+#include <A4Engine/SDLppTexture.hpp>
 #include <nlohmann/json.hpp>
 
 #include <iostream>
+#include <string>
 #include <fstream>
-
-using json = nlohmann::json;
 
 Model::Model(const char* filepath)
 {
 	std::ifstream _file(filepath);
-	auto jsonFile = json::parse(_file);
+	auto jsonFile = nlohmann::json::parse(_file);
 
-	_texture = jsonFile.at("texture");
+	std::string textureFilepath = jsonFile.at("texture");
+	_texture = ResourceManager::Instance().GetTexture(textureFilepath);
 
 	for (const auto& indice : jsonFile.at("indices"))
 		_indices.push_back(indice);
 
-	for (const auto& vertex : jsonFile.at("vertices"))
+	for (const auto& v : jsonFile.at("vertices"))
 	{
-		auto& pos = vertex.at("position");
-		auto& tc = vertex.at("uv");
-		auto& col = vertex.at("color");
+		auto& pos = v.at("position");
+		auto& tc = v.at("uv");
+		auto& col = v.at("color");
 
 		SDL_FPoint position{ pos[0], pos[1] };
 		SDL_FPoint tex_coord{ tc[0], tc[1] };
@@ -31,10 +33,14 @@ Model::Model(const char* filepath)
 
 		_vertices.push_back(vertex);
 	}
-
-	//remplir avec les valeurs du JSON
 }
 
-Model::Model(Model&&) noexcept
+void Model::Draw(SDLppRenderer& renderer)
 {
+	SDL_RenderGeometry(renderer.GetHandle(),
+		_texture.get()->GetHandle(),
+		_vertices.data(),
+		(int)_vertices.size(),
+		_indices.data(),
+		(int)_indices.size());
 }

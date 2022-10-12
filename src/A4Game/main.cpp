@@ -12,10 +12,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
-#include <nlohmann/json.hpp>
-#include <A4Engine/Model.h>
-
-using json = nlohmann::json;
+#include <A4Engine/Model.hpp>
 
 int main(int argc, char** argv)
 {
