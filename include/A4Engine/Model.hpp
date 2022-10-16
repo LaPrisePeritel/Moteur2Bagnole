@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <vector>
 #include <memory>
+#include <string>
 #include <A4Engine/Export.hpp>
 
 class SDLppRenderer;
@@ -20,6 +21,7 @@ public:
 	~Model() = default;
 
 	void Draw(SDLppRenderer& renderer);
+	void ToJson(std::string name);
 
 private:
 	std::shared_ptr<SDLppTexture> _texture;

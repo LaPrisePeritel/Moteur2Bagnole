@@ -13,6 +13,8 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
 #include <A4Engine/Model.hpp>
+#include <entt/entt.hpp>
+#include <A4Engine/RenderSystem.hpp>
 
 int main(int argc, char** argv)
 {
@@ -57,6 +59,31 @@ int main(int argc, char** argv)
     InputManager::Instance().BindKeyPressed(SDLK_DOWN, "MoveDown");
 
     std::shared_ptr<SDLppTexture> texture = ResourceManager::Instance().GetTexture("assets/runner.png");
+
+    entt::registry registry;
+
+    // On créé une entité joueur (présente dès le début) avec des composants particuliers
+    entt::entity player = registry.create();
+    {
+        // Une position de départ
+        auto& entityPos = registry.emplace<Transform>(player);
+        entityPos.SetPosition(Vector2f(200.f, 200.f));
+
+        // Une façon de l'afficher
+        auto& entityDrawable = registry.emplace<Sprite>(player, texture);
+        entityDrawable.Resize(640.f / 5.f, 427.f / 5.f);
+
+        // Une vélocité
+        //auto& entityVelocity = registry.emplace<Velocity>(player);
+        //entityVelocity.x = 0.f;
+        //entityVelocity.y = 0.f;
+
+        //// Nous ne voulons pas qu'il soit soumis à la gravité
+        //registry.emplace<NoGravity>(player);
+
+        //// Nous voulons pouvoir le contrôler
+        //registry.emplace<Input>(player);
+    }
 
     Sprite sprite(texture);
     sprite.Resize(256, 256);
@@ -135,6 +162,7 @@ int main(int argc, char** argv)
 		ImGui::Render();
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
+        RenderSystem::Render(registry, renderer);
         renderer.Present();
 	}
 	// Cleanup
