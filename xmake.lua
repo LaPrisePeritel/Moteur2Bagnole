@@ -1,6 +1,6 @@
 add_rules("mode.debug", "mode.release")
 
-add_requires("entt", "fmt", "libsdl", "libsdl_image", "nlohmann_json")
+add_requires("chipmunk2d", "entt", "fmt", "libsdl", "libsdl_image", "nlohmann_json")
 add_requires("imgui", { configs = { sdl2 = true }})
 
 set_allowedarchs("windows|x64")

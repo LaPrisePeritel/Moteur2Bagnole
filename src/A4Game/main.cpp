@@ -14,7 +14,8 @@
 #include <imgui_impl_sdlrenderer.h>
 #include <A4Engine/Model.hpp>
 #include <entt/entt.hpp>
-#include <A4Engine/RenderSystem.hpp>
+#include <A4Engine/Systems.hpp>
+#include <A4Engine/Components.hpp>
 
 int main(int argc, char** argv)
 {
@@ -62,27 +63,30 @@ int main(int argc, char** argv)
 
     entt::registry registry;
 
-    // On créé une entité joueur (présente dès le début) avec des composants particuliers
+    entt::entity camera = registry.create();
+    {
+        auto& entityPos = registry.emplace<Transform>(camera);
+        entityPos.SetPosition(Vector2f(0.f, 0.f));
+
+        registry.emplace<CameraComponent>(camera);
+    }
+
     entt::entity player = registry.create();
     {
-        // Une position de départ
         auto& entityPos = registry.emplace<Transform>(player);
-        entityPos.SetPosition(Vector2f(200.f, 200.f));
+        entityPos.SetPosition(Vector2f(0.f, 0.f));
 
-        // Une façon de l'afficher
         auto& entityDrawable = registry.emplace<Sprite>(player, texture);
-        entityDrawable.Resize(640.f / 5.f, 427.f / 5.f);
+        entityDrawable.SetRect(SDL_Rect{ 0, 0, 32, 32 });
+        entityDrawable.Resize(256, 256);
 
-        // Une vélocité
-        //auto& entityVelocity = registry.emplace<Velocity>(player);
-        //entityVelocity.x = 0.f;
-        //entityVelocity.y = 0.f;
+        auto& entityVelocity = registry.emplace<VelocityComponent>(player);
+        entityVelocity.x = 500.f;
+        entityVelocity.y = 200.f;
 
-        //// Nous ne voulons pas qu'il soit soumis à la gravité
-        //registry.emplace<NoGravity>(player);
+        /*registry.emplace<nogravity>(player);
 
-        //// Nous voulons pouvoir le contrôler
-        //registry.emplace<Input>(player);
+        registry.emplace<input>(player);*/
     }
 
     Sprite sprite(texture);
@@ -162,7 +166,8 @@ int main(int argc, char** argv)
 		ImGui::Render();
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
-        RenderSystem::Render(registry, renderer);
+        Systems::RenderSystem(registry, renderer);
+        Systems::VelocitySystem(registry, deltaTime);
         renderer.Present();
 	}
 	// Cleanup
