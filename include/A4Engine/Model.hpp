@@ -21,7 +21,7 @@ public:
 	~Model() = default;
 
 	void Draw(SDLppRenderer& renderer);
-	void ToJson(std::string name);
+	//void ToJson(std::string name);
 
 private:
 	std::shared_ptr<SDLppTexture> _texture;

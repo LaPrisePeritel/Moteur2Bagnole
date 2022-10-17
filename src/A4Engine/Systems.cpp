@@ -5,22 +5,32 @@
 
 void Systems::RenderSystem(entt::registry& registry, SDLppRenderer& renderer)
 {
-	auto view = registry.view<Transform, Sprite>();
 	auto cameraView = registry.view<Transform, CameraComponent>();
+	auto view = registry.view<Transform, Sprite>();
 
-	for (entt::entity entity : view)
-	{
-		auto& entityPos = view.get<Transform>(entity);
-		auto& entityDrawable = view.get<Sprite>(entity);
-
-		entityDrawable.Draw(renderer, entityPos);
-	}
+	Transform currentCameraTransform;
 
 	for (entt::entity entity : cameraView)
 	{
-		auto& entityPos = cameraView.get<Transform>(entity);
-		cameraView.get<CameraComponent>(entity);
-		// Camera System
+		auto& tranform = cameraView.get<Transform>(entity);
+		currentCameraTransform = tranform;
+	}
+
+	for (entt::entity entity : view)
+	{
+		auto& transform = view.get<Transform>(entity);
+		auto& sprite = view.get<Sprite>(entity);
+
+		auto newPosition = transform.GetPosition() - currentCameraTransform.GetPosition();
+		auto newScale = transform.GetScale() * currentCameraTransform.GetScale();
+		auto newRotation = transform.GetRotation() - currentCameraTransform.GetRotation();
+
+		Transform newTransform;
+		newTransform.SetPosition(newPosition);
+		newTransform.SetScale(newScale);
+		newTransform.SetRotation(newRotation);
+
+		sprite.Draw(renderer, newTransform);
 	}
 }
 

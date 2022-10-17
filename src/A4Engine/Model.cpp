@@ -45,17 +45,17 @@ void Model::Draw(SDLppRenderer& renderer)
 		(int)_indices.size());
 }
 
-void Model::ToJson(std::string name)
-{
-	if (name.length() <= 0)
-		return;
-
-	nlohmann::json JsonFile;
-	std::string path = "assets/Models/" + name;
-	JsonFile["indices"] = _indices;
-	JsonFile["path"] = path;
-	JsonFile["vertices"];
-
-	std::ofstream file(path);
-	file << std::setw(4) << JsonFile << std::endl;
-}
+//void Model::ToJson(std::string name)
+//{
+//	if (name.length() <= 0)
+//		return;
+//
+//	nlohmann::json JsonFile;
+//	std::string path = "assets/Models/" + name;
+//	JsonFile["indices"] = _indices;
+//	JsonFile["path"] = path;
+//	JsonFile["vertices"];
+//
+//	std::ofstream file(path);
+//	file << std::setw(4) << JsonFile << std::endl;
+//}

@@ -64,12 +64,13 @@ int main(int argc, char** argv)
     entt::registry registry;
 
     entt::entity camera = registry.create();
-    {
-        auto& entityPos = registry.emplace<Transform>(camera);
-        entityPos.SetPosition(Vector2f(0.f, 0.f));
+    auto& cameraTranform = registry.emplace<Transform>(camera);
+    cameraTranform.SetPosition(Vector2f(-512.f, -232.f));
+    cameraTranform.SetScale(Vector2f(1.f, 1.f));
+    cameraTranform.SetRotation(5);
 
-        registry.emplace<CameraComponent>(camera);
-    }
+    registry.emplace<CameraComponent>(camera);
+    
 
     entt::entity player = registry.create();
     {
@@ -81,8 +82,8 @@ int main(int argc, char** argv)
         entityDrawable.Resize(256, 256);
 
         auto& entityVelocity = registry.emplace<VelocityComponent>(player);
-        entityVelocity.x = 500.f;
-        entityVelocity.y = 200.f;
+        entityVelocity.x = 0.f;
+        entityVelocity.y = 0.f;
 
         /*registry.emplace<nogravity>(player);
 
@@ -99,8 +100,6 @@ int main(int argc, char** argv)
     int frameIndex = 0;
     int frameCount = 5;
     float timer = 0.0f;
-
-    float rotation = 0.f;
 
     bool isOpen = true;
     while (isOpen)
@@ -133,7 +132,19 @@ int main(int argc, char** argv)
             InputManager::Instance().HandleEvent(event);
         }
 
-        // Start the Dear ImGui frame
+        if (InputManager::Instance().IsActive("MoveDown"))
+            transformParent.Translate(Vector2f(0.f, 500.f * deltaTime));
+
+        if (InputManager::Instance().IsActive("MoveLeft"))
+            transformParent.Translate(Vector2f(-500.f * deltaTime, 0.f));
+
+        if (InputManager::Instance().IsActive("MoveRight"))
+            transformParent.Translate(Vector2f(500.f * deltaTime, 0.f));
+
+        if (InputManager::Instance().IsActive("MoveUp"))
+            transformParent.Translate(Vector2f(0.f, -500.f * deltaTime));
+
+        // ImGUI
         ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
@@ -141,27 +152,26 @@ int main(int argc, char** argv)
         renderer.SetDrawColor(127, 0, 127, 255);
         renderer.Clear();
 
-        ImGui::Begin("Window");
+        ImGui::Begin("Camera Parameter");
 
+        auto& position = cameraTranform.GetPosition();
+        float posPtr[2] = { position.x, position.y };
+        if (ImGui::SliderFloat2("Position", posPtr, -1000.f, 1000.f))
+            cameraTranform.SetPosition(Vector2(posPtr[0], posPtr[1]));
+
+        float rotation = cameraTranform.GetRotation();
         if (ImGui::SliderFloat("Rotation", &rotation, -180.f, 180.f))
-            transformParent.SetRotation(rotation);
+            cameraTranform.SetRotation(rotation);
+
+        auto& scale = cameraTranform.GetScale();
+        float scalePtr[2] = { scale.x, scale.y };
+        if (ImGui::SliderFloat2("Scale", scalePtr, -10.f, 10.f))
+            cameraTranform.SetScale(Vector2(scalePtr[0], scalePtr[1]));
 
         ImGui::End();
 
-        if (InputManager::Instance().IsActive("MoveDown"))
-			transformParent.Translate(Vector2f(0.f, 500.f * deltaTime));
-
-        if (InputManager::Instance().IsActive("MoveLeft"))
-			transformParent.Translate(Vector2f(-500.f * deltaTime, 0.f));
-
-        if (InputManager::Instance().IsActive("MoveRight"))
-			transformParent.Translate(Vector2f(500.f * deltaTime, 0.f));
-
-        if (InputManager::Instance().IsActive("MoveUp"))
-			transformParent.Translate(Vector2f(0.f, -500.f * deltaTime));
-
-        sprite.Draw(renderer, transformParent);
-        sprite.Draw(renderer, transform);
+        //sprite.Draw(renderer, transformParent);
+        //sprite.Draw(renderer, transform);
 
 		ImGui::Render();
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
