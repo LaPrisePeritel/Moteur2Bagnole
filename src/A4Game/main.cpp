@@ -15,6 +15,7 @@
 #include <A4Engine/Sprite.hpp>
 #include <A4Engine/SpritesheetComponent.hpp>
 #include <A4Engine/Transform.hpp>
+#include <A4Engine/VelocityComponent.hpp>
 #include <A4Engine/VelocitySystem.hpp>
 #include <chipmunk/chipmunk.h>
 #include <entt/entt.hpp>
@@ -62,9 +63,9 @@ int main()
     InputManager::Instance().BindKeyPressed(SDLK_DOWN, "CameraMoveDown");
 
     std::shared_ptr<Spritesheet> spriteSheet = std::make_shared<Spritesheet>();
-    spriteSheet->AddAnimation("idle", 5, 0.1f, Vector2i{ 0, 0 }, Vector2i{ 32, 32 });
-    spriteSheet->AddAnimation("run", 5, 0.1f, Vector2i{ 0, 32 }, Vector2i{ 32, 32 });
-    spriteSheet->AddAnimation("jump", 5, 0.1f, Vector2i{ 0, 64 }, Vector2i{ 32, 32 });
+    spriteSheet->AddAnimation("idle", 5, 0.1f, Vector2i{ 0, 0 },  Vector2i{ 32, 32 });
+    spriteSheet->AddAnimation("run",  8, 0.1f, Vector2i{ 0, 32 }, Vector2i{ 32, 32 });
+    spriteSheet->AddAnimation("jump", 4, 0.1f, Vector2i{ 0, 64 }, Vector2i{ 32, 32 });
 
     entt::registry registry;
 
@@ -82,6 +83,16 @@ int main()
     registry.get<Transform>(runner).SetPosition({ 300.f, 250.f });
 
     Uint64 lastUpdate = SDL_GetPerformanceCounter();
+
+    InputManager::Instance().BindKeyPressed(SDL_KeyCode::SDLK_r, "PlayRun");
+
+    InputManager::Instance().OnAction("PlayRun", [&](bool pressed)
+    {
+        if (pressed)
+            registry.get<SpritesheetComponent>(runner).PlayAnimation("run");
+        else
+            registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
+    });
 
     bool isOpen = true;
     while (isOpen)
@@ -145,6 +156,7 @@ void EntityInspector(const char* windowName, entt::registry& registry, entt::ent
 
     if (ImGui::Button("Reset"))
     {
+        transform.SetScale({ 1.f, 1.f });
         transform.SetRotation(0.f);
         transform.SetPosition(Vector2f(0.f, 0.f));
     }

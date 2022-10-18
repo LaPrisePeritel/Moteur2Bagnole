@@ -18,7 +18,7 @@ void SpritesheetComponent::PlayAnimation(const std::string& animName)
 	auto indexOpt = m_spritesheet->GetAnimationByName(animName);
 	if (!indexOpt.has_value())
 	{
-		fmt::print(stderr, fg(fmt::color::red), "animation \"{}\" not found", animName);
+		fmt::print(stderr, fg(fmt::color::red), "animation \"{}\" not found\n", animName);
 		return;
 	}
 
@@ -27,6 +27,9 @@ void SpritesheetComponent::PlayAnimation(const std::string& animName)
 
 void SpritesheetComponent::PlayAnimation(std::size_t animIndex)
 {
+	if (m_currentAnimation == animIndex)
+		return;
+
 	m_currentAnimation = animIndex;
 	m_currentFrameIndex = 0;
 	m_timeAccumulator = 0.f;

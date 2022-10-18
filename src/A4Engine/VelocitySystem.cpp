@@ -17,5 +17,6 @@ void VelocitySystem::Update(float deltaTime)
 		VelocityComponent& entityVelocity = view.get<VelocityComponent>(entity);
 
 		entityTransform.Translate(entityVelocity.linearVel * deltaTime);
+		entityTransform.Rotate(entityVelocity.angularVel * deltaTime);
 	}
 }

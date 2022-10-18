@@ -24,7 +24,7 @@ void Color::ToRGBA8(std::uint8_t& red, std::uint8_t& green, std::uint8_t& blue, 
 Color Color::FromRGBA8(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
 {
 	float invU8 = 1.f / 255.f;
-	return Color(r * invU8, g * invU8, b * invU8, a * invU8);
+	return { r * invU8, g * invU8, b * invU8, a * invU8 };
 }
 
 std::ostream& operator<<(std::ostream& os, const Color& color)
