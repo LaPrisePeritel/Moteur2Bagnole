@@ -1,4 +1,5 @@
 #include <A4Engine/ResourceManager.hpp>
+#include <A4Engine/Model.hpp>
 #include <A4Engine/SDLppSurface.hpp>
 #include <A4Engine/SDLppTexture.hpp>
 #include <stdexcept>
@@ -19,8 +20,33 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::Clear()
 {
+	m_missingModel.reset();
 	m_missingTexture.reset();
+	m_models.clear();
 	m_textures.clear();
+}
+
+const std::shared_ptr<Model>& ResourceManager::GetModel(const std::string& modelPath)
+{
+	// Avons-nous déjà ce modèle en stock ?
+	auto it = m_models.find(modelPath);
+	if (it != m_models.end())
+		return it->second; // Oui, on peut le renvoyer
+
+	// Non, essayons de le charger
+	Model model = Model::LoadFromFile(modelPath);
+	if (!model.IsValid())
+	{
+		// On a pas pu charger le modèle, utilisons un modèle "manquant"
+		if (!m_missingModel)
+			m_missingModel = std::make_shared<Model>();
+
+		m_models.emplace(modelPath, m_missingModel);
+		return m_missingModel;
+	}
+
+	it = m_models.emplace(modelPath, std::make_shared<Model>(std::move(model))).first;
+	return it->second;
 }
 
 const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(const std::string& texturePath)
@@ -81,6 +107,16 @@ void ResourceManager::Purge()
 			it = m_textures.erase(it);
 		}
 	}
+
+	// Même chose pour les modèles
+	for (auto it = m_models.begin(); it != m_models.end(); )
+	{
+		if (it->second.use_count() > 1)
+			++it;
+		else
+			it = m_models.erase(it);
+	}
+
 }
 
 ResourceManager& ResourceManager::Instance()

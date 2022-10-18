@@ -1,14 +1,15 @@
 #pragma once
 
 #include <A4Engine/Export.hpp>
-#include <memory>
+#include <A4Engine/Renderable.hpp>
 #include <SDL.h>
+#include <memory>
 
 class SDLppRenderer;
 class SDLppTexture;
 class Transform;
 
-class A4ENGINE_API Sprite // Une portion d'une texture
+class A4ENGINE_API Sprite : public Renderable // Une portion d'une texture
 {
 	public:
 		Sprite(std::shared_ptr<const SDLppTexture> texture);
@@ -17,7 +18,7 @@ class A4ENGINE_API Sprite // Une portion d'une texture
 		Sprite(Sprite&&) = default;
 		~Sprite() = default;
 
-		void Draw(SDLppRenderer& renderer, const Transform& transform);
+		void Draw(SDLppRenderer& renderer, const Transform& cameraTransform, const Transform& transform) override;
 
 		int GetHeight() const;
 		int GetWidth() const;

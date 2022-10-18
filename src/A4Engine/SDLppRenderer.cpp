@@ -5,7 +5,7 @@
 
 SDLppRenderer::SDLppRenderer(SDLppWindow& window)
 {
-	m_renderer = SDL_CreateRenderer(window.GetHandle(), 0, 0);
+	m_renderer = SDL_CreateRenderer(window.GetHandle(), 1, 0);
 }
 
 SDLppRenderer::SDLppRenderer(SDLppRenderer&& renderer) noexcept

@@ -16,7 +16,7 @@ m_height(rect.h)
 {
 }
 
-void Sprite::Draw(SDLppRenderer& renderer, const Transform& transform)
+void Sprite::Draw(SDLppRenderer& renderer, const Transform& cameraTransform, const Transform& transform)
 {
 	SDL_Rect texRect = m_texture->GetRect();
 
@@ -26,6 +26,12 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& transform)
 	Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f));
 	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)));
 	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
+
+	// Application de la caméra (transformation inverse)
+	topLeftCorner = cameraTransform.TransformInversePoint(topLeftCorner);
+	topRightCorner = cameraTransform.TransformInversePoint(topRightCorner);
+	bottomLeftCorner = cameraTransform.TransformInversePoint(bottomLeftCorner);
+	bottomRightCorner = cameraTransform.TransformInversePoint(bottomRightCorner);
 
 	// La division étant généralement plus coûteuse que la multiplication, quand on sait qu'on va faire plusieurs divisons par
 	// les mêmes valeurs on peut calculer l'inverse de la valeur pour la multiplier par la suite (X * (1 / Y) == X / Y)
@@ -63,7 +69,7 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& transform)
 	int indices[6] = { 0, 1, 2, 2, 1, 3 };
 
 	SDL_RenderGeometry(renderer.GetHandle(),
-		m_texture->GetHandle(),
+		(m_texture) ? m_texture->GetHandle() : nullptr,
 		vertices, 4,
 		indices, 6);
 }
