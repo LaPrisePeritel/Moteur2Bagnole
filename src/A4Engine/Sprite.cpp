@@ -11,6 +11,7 @@ Sprite(std::move(texture), texture->GetRect())
 Sprite::Sprite(std::shared_ptr<const SDLppTexture> texture, const SDL_Rect& rect) :
 m_texture(std::move(texture)),
 m_rect(rect),
+m_origin(0.f, 0.f),
 m_width(rect.w),
 m_height(rect.h)
 {
@@ -20,12 +21,14 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& cameraTransform, con
 {
 	SDL_Rect texRect = m_texture->GetRect();
 
+	Vector2f originPos = m_origin * Vector2f(m_width, m_height);
+
 	// Calcul de la position des quatre coins du sprite dans le repère du Transform
 	// c'est à cette étape que la translation, rotation et scale du Transform vont s'appliquer
-	Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f));
-	Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f));
-	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)));
-	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
+	Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f) - originPos);
+	Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f) - originPos);
+	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)) - originPos);
+	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)) - originPos);
 
 	// Application de la caméra (transformation inverse)
 	topLeftCorner = cameraTransform.TransformInversePoint(topLeftCorner);
@@ -79,6 +82,11 @@ int Sprite::GetHeight() const
 	return m_height;
 }
 
+const Vector2f& Sprite::GetOrigin() const
+{
+	return m_origin;
+}
+
 int Sprite::GetWidth() const
 {
 	return m_width;
@@ -88,6 +96,11 @@ void Sprite::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
+}
+
+void Sprite::SetOrigin(const Vector2f& origin)
+{
+	m_origin = origin;
 }
 
 void Sprite::SetRect(SDL_Rect rect)
