@@ -24,6 +24,7 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
 
+entt::entity CreateBox(entt::registry& registry);
 entt::entity CreateCamera(entt::registry& registry);
 entt::entity CreateHouse(entt::registry& registry);
 entt::entity CreateRunner(entt::registry& registry, std::shared_ptr<Spritesheet> spritesheet);
@@ -82,6 +83,8 @@ int main()
 	entt::entity runner = CreateRunner(registry, spriteSheet);
 	registry.get<Transform>(runner).SetPosition({ 300.f, 250.f });
 
+	entt::entity box = CreateBox(registry);
+
 	Uint64 lastUpdate = SDL_GetPerformanceCounter();
 
 	InputManager::Instance().BindKeyPressed(SDL_KeyCode::SDLK_r, "PlayRun");
@@ -93,6 +96,19 @@ int main()
 		else
 			registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
 	});
+
+	cpSpace* space = cpSpaceNew();
+	cpSpaceSetGravity(space, { 0.f, 98.1f });
+	cpSpaceSetDamping(space, 0.5f);
+
+	cpBody* boxBody = cpBodyNew(1.f, 1.f);
+	cpSpaceAddBody(space, boxBody);
+	cpBodySetPosition(boxBody, cpv(400.f, 400.f));
+
+	cpShape* boxShape = cpBoxShapeNew(boxBody, 256, 256, 0.f);
+	cpSpaceAddShape(space, boxShape);
+
+	cpBodySetAngularVelocity(boxBody, 90.f * Deg2Rad);
 
 	bool isOpen = true;
 	while (isOpen)
@@ -120,17 +136,33 @@ int main()
 		HandleCameraMovement(registry, cameraEntity, deltaTime);
 		HandleRunnerMovement(registry, runner, deltaTime);
 
-		EntityInspector("Camera", registry, cameraEntity);
-		EntityInspector("Runner", registry, runner);
+		cpSpaceStep(space, deltaTime);
+		cpVect position = cpBodyGetPosition(boxBody);
+		float rotation = cpBodyGetAngle(boxBody) * Rad2Deg;
+
+		registry.get<Transform>(box).SetPosition(Vector2f(position.x, position.y));
+		registry.get<Transform>(box).SetRotation(rotation);
 
 		animSystem.Update(deltaTime);
 		velocitySystem.Update(deltaTime);
 		renderSystem.Update(deltaTime);
 
+		EntityInspector("Box", registry, box);
+		EntityInspector("Camera", registry, cameraEntity);
+		EntityInspector("Runner", registry, runner);
+
 		imgui.Render();
 
 		renderer.Present();
 	}
+
+	cpSpaceRemoveShape(space, boxShape);
+	cpShapeFree(boxShape);
+
+	cpSpaceRemoveBody(space, boxBody);
+	cpBodyFree(boxBody);
+
+	cpSpaceFree(space);
 
 	return 0;
 }
@@ -162,6 +194,18 @@ void EntityInspector(const char* windowName, entt::registry& registry, entt::ent
 	}
 
 	ImGui::End();
+}
+
+entt::entity CreateBox(entt::registry& registry)
+{
+	std::shared_ptr<Sprite> box = std::make_shared<Sprite>(ResourceManager::Instance().GetTexture("assets/box.png"));
+	box->SetOrigin({ 0.5f, 0.5f });
+
+	entt::entity entity = registry.create();
+	registry.emplace<GraphicsComponent>(entity, std::move(box));
+	registry.emplace<Transform>(entity);
+
+	return entity;
 }
 
 entt::entity CreateCamera(entt::registry& registry)
