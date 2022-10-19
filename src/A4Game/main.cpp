@@ -98,17 +98,35 @@ int main()
 	});
 
 	cpSpace* space = cpSpaceNew();
-	cpSpaceSetGravity(space, { 0.f, 98.1f });
+	cpSpaceSetGravity(space, { 0.f, 981.f });
 	cpSpaceSetDamping(space, 0.5f);
 
-	cpBody* boxBody = cpBodyNew(1.f, 1.f);
+	cpBody* boxBody = cpBodyNew(100.f, cpMomentForBox(100.f, 256, 256));
 	cpSpaceAddBody(space, boxBody);
 	cpBodySetPosition(boxBody, cpv(400.f, 400.f));
+	cpBodySetAngle(boxBody, 15.f * Rad2Deg);
 
 	cpShape* boxShape = cpBoxShapeNew(boxBody, 256, 256, 0.f);
+	cpShapeGetCenterOfGravity(boxShape);
 	cpSpaceAddShape(space, boxShape);
 
-	cpBodySetAngularVelocity(boxBody, 90.f * Deg2Rad);
+	cpBody* floorBody = cpBodyNewStatic();
+
+	cpShape* floorShape = cpSegmentShapeNew(floorBody, cpv(0.f, 720.f), cpv(10'000.f, 720.f), 0.f);
+	cpSpaceAddShape(space, floorShape);
+
+	InputManager::Instance().BindKeyPressed(SDL_KeyCode::SDLK_SPACE, "Force");
+
+	InputManager::Instance().OnAction("Force", [&](bool pressed)
+	{
+		if (pressed)
+		{
+			cpBodyApplyImpulseAtWorldPoint(boxBody, cpv(0.f, -10'000.f), cpBodyGetPosition(boxBody));
+		}
+	});
+
+	float physicsTimestep = 1.f / 50.f;
+	float physicsAccumulator = 0.f;
 
 	bool isOpen = true;
 	while (isOpen)
@@ -116,6 +134,8 @@ int main()
 		Uint64 now = SDL_GetPerformanceCounter();
 		float deltaTime = (float) (now - lastUpdate) / SDL_GetPerformanceFrequency();
 		lastUpdate = now;
+
+		fmt::print("FPS: {}\n", 1.f / deltaTime);
 
 		SDL_Event event;
 		while (SDLpp::PollEvent(&event))
@@ -136,7 +156,15 @@ int main()
 		HandleCameraMovement(registry, cameraEntity, deltaTime);
 		HandleRunnerMovement(registry, runner, deltaTime);
 
-		cpSpaceStep(space, deltaTime);
+		// Objectif : faire en sorte que la physique tourne à pas fixe (fixed delta time)
+
+		physicsAccumulator += deltaTime;
+		while (physicsAccumulator >= physicsTimestep)
+		{
+			cpSpaceStep(space, physicsTimestep);
+			physicsAccumulator -= physicsTimestep;
+		}
+
 		cpVect position = cpBodyGetPosition(boxBody);
 		float rotation = cpBodyGetAngle(boxBody) * Rad2Deg;
 
