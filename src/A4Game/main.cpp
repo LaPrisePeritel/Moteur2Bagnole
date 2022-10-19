@@ -39,7 +39,7 @@ int main()
 	SDLpp sdl;
 
 	SDLppWindow window("A4Engine", 1280, 720);
-	SDLppRenderer renderer(window);
+	SDLppRenderer renderer(window, "", SDL_RENDERER_PRESENTVSYNC);
 
 	ResourceManager resourceManager(renderer);
 	InputManager inputManager;
