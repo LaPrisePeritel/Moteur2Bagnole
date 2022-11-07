@@ -144,7 +144,7 @@ InputManager::ActionData& InputManager::GetActionData(const std::string& action)
 		return it->second;
 	else
 	{
-		ActionData& actionData = m_actions[std::move(action)];
+		ActionData& actionData = m_actions[action];
 		actionData.isActive = false;
 
 		return actionData;

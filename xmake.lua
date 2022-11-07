@@ -1,6 +1,6 @@
 add_rules("mode.debug", "mode.release")
 
-add_requires("entt", "fmt", "libsdl", "libsdl_image", "nlohmann_json")
+add_requires("chipmunk2d", "entt", "fmt", "libsdl", "libsdl_image", "lz4", "nlohmann_json")
 add_requires("imgui", { configs = { sdl2 = true }})
 add_requires("openal-soft", "dr_wav")
 
@@ -14,6 +14,7 @@ set_languages("c++17")
 
 -- Désactivation de quelques warnings pas utiles dans notre cas avec VS
 if is_plat("windows") then
+    set_runtimes("MD")
     add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
     add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
 end
@@ -24,14 +25,15 @@ target("A4Engine")
     add_headerfiles("include/A4Engine/*.h", "include/A4Engine/*.hpp", "include/A4Engine/*.inl")
     add_includedirs("include", { public = true })
     add_files("src/A4Engine/**.cpp")
-    add_packages("libsdl", "libsdl_image", "nlohmann_json", "fmt", "entt", { public = true })
+    add_packages("libsdl", "libsdl_image", "nlohmann_json", "fmt", "entt", "imgui", "chipmunk2d", { public = true })
+    add_packages("lz4")
 
 target("A4Game")
     set_kind("binary")
     add_deps("A4Engine")
     add_headerfiles("include/A4Game/*.h", "include/A4Game/*.hpp")
     add_files("src/A4Game/**.cpp")
-    add_packages("imgui")
+
 target("A4Test")
     set_kind("binary")
     add_deps("A4Engine")
