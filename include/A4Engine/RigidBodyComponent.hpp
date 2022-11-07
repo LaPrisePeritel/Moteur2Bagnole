@@ -2,19 +2,27 @@
 
 #include <A4Engine/Export.hpp>
 #include <chipmunk/chipmunk.h>
-#include <A4Engine/Transform.hpp>
 
-class A4ENGINE_API RigidBodyComponent 
-{
+class A4ENGINE_API RigidBodyComponent {
+
 public:
-	RigidBodyComponent(float mass);
-	RigidBodyComponent(RigidBodyComponent&&) noexcept;
-	~RigidBodyComponent() = default;
 
-	static void AttachRigidBody(Transform* parent);
-	static void DetachRigidBody();
+	RigidBodyComponent(float mass, float width, float height);
+	RigidBodyComponent(const RigidBodyComponent&) = default;
+	RigidBodyComponent(RigidBodyComponent&&) = default;
+	~RigidBodyComponent();
+
+	RigidBodyComponent& operator=(const RigidBodyComponent&) = default;
+	RigidBodyComponent& operator=(RigidBodyComponent&&) = default;
+
+	cpBody* GetBody();
+
+	cpVect GetPosition();
+	float GetAngle();
+	void SetPosition(cpVect pos);
+	void SetAngle(float angle);
 
 private:
 	cpBody* m_body;
-	cpShape* shape;
+
 };
