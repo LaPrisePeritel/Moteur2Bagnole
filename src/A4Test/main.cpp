@@ -3,6 +3,7 @@
 #define DR_WAV_IMPLEMENTATION
 #include <A4Engine/CameraComponent.hpp>
 #include <A4Engine/GraphicsComponent.hpp>
+#include <A4Engine/InputManager.hpp>
 #include <A4Engine/ResourceManager.hpp>
 #include <A4Engine/Sprite.hpp>
 #include <A4Engine/Transform.hpp>
@@ -62,17 +63,19 @@ int main()
 	alSourcei(source, AL_BUFFER, buffer);
 	alSourcei(source, AL_LOOPING, AL_TRUE);
 
-	alSource3f(source, AL_POSITION, 50.f, 0.f, 0.f);
+	alListener3f(AL_POSITION, 640.f / 100.f, 360.f / 100.f, 0.f);
 
-	alListener3f(AL_POSITION, 45.f, 0.f, 0.f);
-
-	//alSourcePlay(source);
+	alSourcePlay(source);
 
 	SDLpp sdl;
 	SDLppWindow window("Test audio", 1280, 720);
 	SDLppRenderer renderer(window, "", SDL_RENDERER_PRESENTVSYNC);
 
 	ResourceManager resourceManager(renderer);
+	InputManager inputManager;
+
+	inputManager.BindKeyPressed(SDLK_LEFT, "MoveLeft");
+	inputManager.BindKeyPressed(SDLK_RIGHT, "MoveRight");
 
 	Sprite ambulance(resourceManager.GetTexture("assets/ambulance.png"));
 	ambulance.Resize(ambulance.GetWidth() * 0.1f, ambulance.GetHeight() * 0.1f);
@@ -96,10 +99,26 @@ int main()
 		{
 			if (event.type == SDL_QUIT)
 				isOpen = false;
+
+			inputManager.HandleEvent(event);
 		}
 		
 		renderer.SetDrawColor(0, 127, 255, 255);
 		renderer.Clear();
+
+		Vector2f oldPosition = ambulanceTransform.GetGlobalPosition();
+
+		if (inputManager.IsActive("MoveLeft"))
+			ambulanceTransform.Translate(Vector2f(-1000.f * deltaTime, 0.f));
+
+		if (inputManager.IsActive("MoveRight"))
+			ambulanceTransform.Translate(Vector2f(1000.f * deltaTime, 0.f));
+
+		Vector2f ambulancePos = ambulanceTransform.GetGlobalPosition();
+		Vector2f velocity = (ambulancePos - oldPosition) / deltaTime;
+
+		alSource3f(source, AL_POSITION, ambulancePos.x / 100.f, ambulancePos.y / 100.f, 0.f);
+		alSource3f(source, AL_VELOCITY, velocity.x / 100.f, velocity.y / 100.f, 0.f);
 
 		ambulance.Draw(renderer, cameraTransform, ambulanceTransform);
 
