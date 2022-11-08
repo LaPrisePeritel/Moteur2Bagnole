@@ -22,8 +22,11 @@ public:
 	float GetAngle();
 	void SetPosition(cpVect pos);
 	void SetAngle(float angle);
+	void AddShape(Shape* shape);
+	void RemoveShape(Shape* shape);
+	void SetMoment();
 
 private:
 	cpBody* m_body;
-	std::vector<Shape> m_shapeBank;
+	std::vector<Shape*> m_shapeBank;
 };

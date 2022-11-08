@@ -151,24 +151,27 @@ Vector2f Transform::TransformPoint(Vector2f position) const
 	return position;
 }
 
-Vector2f Transform::TransformInversePoint(Vector2f position) const
+Vector2f Transform::InverseTransformPoint(Vector2f point) const
 {
-	// Lorsqu'on effectue l'inverse d'une transformation, l'ordre de celles-ci est également inversé, on fait alors du TRS
-
-	// Translation
 	if (m_parent)
-		position -= m_parent->TransformPoint(m_position);
+		point -= m_parent->TransformPoint(m_position);
 	else
-		position -= m_position;
+		point -= m_position;
 
-	// Rotation
-	position = Vector2f::Rotate(position, -GetGlobalRotation());
+	auto rotRad = -GetGlobalRotation() * Deg2Rad;
 
-	// Scale
-	position /= GetGlobalScale();
+	auto tmpX = std::cos(rotRad) * point.x - std::sin(rotRad) * point.y;
+	auto tmpY = std::sin(rotRad) * point.x + std::cos(rotRad) * point.y;
 
-	return position;
+	point.x = tmpX;
+	point.y = tmpY;
+
+	point /= GetGlobalScale();
+
+	return point;
 }
+
+
 
 Transform& Transform::operator=(const Transform& transform)
 {

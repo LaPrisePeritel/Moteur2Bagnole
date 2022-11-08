@@ -6,6 +6,12 @@ BoxShape::BoxShape(float width, float height)
 	m_height = height;
 }
 
-BoxShape::~BoxShape()
+cpShape* BoxShape::CreateShape(cpBody* body)
 {
+	return m_shape = cpBoxShapeNew(body, m_width, m_height, 0.0f);
+}
+
+float BoxShape::GetMoment(float mass)
+{
+	return cpMomentForBox(mass, m_width, m_height);
 }

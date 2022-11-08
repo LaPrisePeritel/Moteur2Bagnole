@@ -2,6 +2,7 @@
 #include <A4Engine/SDLppRenderer.hpp>
 #include <A4Engine/SDLppTexture.hpp>
 #include <A4Engine/Transform.hpp>
+#include <A4Engine/Matrix3.hpp>
 
 Sprite::Sprite(std::shared_ptr<const SDLppTexture> texture) :
 Sprite(std::move(texture), texture->GetRect())
@@ -17,24 +18,29 @@ m_height(rect.h)
 {
 }
 
-void Sprite::Draw(SDLppRenderer& renderer, const Transform& cameraTransform, const Transform& transform)
+void Sprite::Draw(SDLppRenderer& renderer, const Matrix3& matrix)
 {
 	SDL_Rect texRect = m_texture->GetRect();
 
-	Vector2f originPos = m_origin * Vector2f(m_width, m_height);
+	auto origin = m_origin * Vector2((float)m_width, (float)m_height);
 
 	// Calcul de la position des quatre coins du sprite dans le repère du Transform
 	// c'est à cette étape que la translation, rotation et scale du Transform vont s'appliquer
-	Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f) - originPos);
-	Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f) - originPos);
-	Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)) - originPos);
-	Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)) - originPos);
+	//Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f) - originPos);
+	//Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f) - originPos);
+	//Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)) - originPos);
+	//Vector2f bottomRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)) - originPos);
 
-	// Application de la caméra (transformation inverse)
-	topLeftCorner = cameraTransform.TransformInversePoint(topLeftCorner);
-	topRightCorner = cameraTransform.TransformInversePoint(topRightCorner);
-	bottomLeftCorner = cameraTransform.TransformInversePoint(bottomLeftCorner);
-	bottomRightCorner = cameraTransform.TransformInversePoint(bottomRightCorner);
+	//// Application de la caméra (transformation inverse)
+	//topLeftCorner = cameraTransform.TransformInversePoint(topLeftCorner);
+	//topRightCorner = cameraTransform.TransformInversePoint(topRightCorner);
+	//bottomLeftCorner = cameraTransform.TransformInversePoint(bottomLeftCorner);
+	//bottomRightCorner = cameraTransform.TransformInversePoint(bottomRightCorner);
+
+	auto topL = (Vector2(0.f, 0.f) - origin) * matrix;
+	auto topR = (Vector2((float)m_width, 0.f) - origin) * matrix;
+	auto botL = (Vector2(0.f, (float)m_height) - origin) * matrix;
+	auto botR = (Vector2((float)m_width, (float)m_height) - origin) * matrix;
 
 	// La division étant généralement plus coûteuse que la multiplication, quand on sait qu'on va faire plusieurs divisons par
 	// les mêmes valeurs on peut calculer l'inverse de la valeur pour la multiplier par la suite (X * (1 / Y) == X / Y)
@@ -46,19 +52,19 @@ void Sprite::Draw(SDLppRenderer& renderer, const Transform& cameraTransform, con
 	// la carte graphique allant ensuite générer les valeurs intermédiaires (par interpolation) pour les pixels composant le triangle.
 	SDL_Vertex vertices[4];
 	vertices[0].color = SDL_Color{ 255, 255, 255, 255 };
-	vertices[0].position = SDL_FPoint{ topLeftCorner.x, topLeftCorner.y };
+	vertices[0].position = SDL_FPoint{ topL.x, topL.y };
 	vertices[0].tex_coord = SDL_FPoint{ m_rect.x * invWidth, m_rect.y * invHeight };
 
 	vertices[1].color = SDL_Color{ 255, 255, 255, 255 };
-	vertices[1].position = SDL_FPoint{ topRightCorner.x, topRightCorner.y };
+	vertices[1].position = SDL_FPoint{ topR.x, topR.y };
 	vertices[1].tex_coord = SDL_FPoint{ (m_rect.x + m_rect.w) * invWidth, m_rect.y * invHeight };
 
 	vertices[2].color = SDL_Color{ 255, 255, 255, 255 };
-	vertices[2].position = SDL_FPoint{ bottomLeftCorner.x, bottomLeftCorner.y };
+	vertices[2].position = SDL_FPoint{ botL.x, botL.y };
 	vertices[2].tex_coord = SDL_FPoint{ m_rect.x * invWidth, (m_rect.y + m_rect.h) * invHeight };
 
 	vertices[3].color = SDL_Color{ 255, 255, 255, 255 };
-	vertices[3].position = SDL_FPoint{ bottomRightCorner.x, bottomRightCorner.y };
+	vertices[3].position = SDL_FPoint{ botR.x, botR.y };
 	vertices[3].tex_coord = SDL_FPoint{ (m_rect.x + m_rect.w) * invWidth, (m_rect.y + m_rect.h) * invHeight };
 
 	// On pourrait donner la liste des sommets à la SDL et lui dire de rendre des triangles (à condition d'avoir N * 3 sommets pour N triangles)

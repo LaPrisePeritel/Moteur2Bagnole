@@ -9,6 +9,9 @@ public:
 	BoxShape(float width, float height);
 	~BoxShape() = default;
 
+	cpShape* CreateShape(cpBody* body) override;
+	float GetMoment(float mass) override;
+
 private:
 	float m_width;
 	float m_height;

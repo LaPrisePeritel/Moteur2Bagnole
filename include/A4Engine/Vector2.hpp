@@ -2,6 +2,8 @@
 
 #include <ostream>
 
+class Matrix3;
+
 // Pas de macro d'export pour les templates (leur code n'étant pas compilé dans la dll)
 template<typename T>
 struct Vector2
@@ -14,6 +16,7 @@ struct Vector2
 	Vector2 operator-(const Vector2& vec) const;
 	Vector2 operator*(const Vector2& vec) const;
 	Vector2 operator*(T value) const;
+	Vector2 operator*(const Matrix3& matrix) const;
 	Vector2 operator/(const Vector2& vec) const;
 	Vector2 operator/(T value) const;
 

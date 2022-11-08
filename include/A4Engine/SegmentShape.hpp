@@ -6,8 +6,13 @@
 class A4ENGINE_API SegmentShape : Shape
 {
 public:
-	SegmentShape();
-	~SegmentShape();
+	SegmentShape(cpVect vector1, cpVect vector2);
+	~SegmentShape() = default;
+
+	cpShape* CreateShape(cpBody* body) override;
+	float GetMoment(float mass) override;
 
 private:
+	cpVect m_vector1;
+	cpVect m_vector2;
 };

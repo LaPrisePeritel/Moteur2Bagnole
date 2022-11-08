@@ -9,6 +9,7 @@
 class SDLppRenderer;
 class SDLppTexture;
 class Transform;
+class Matrix3;
 
 class A4ENGINE_API Sprite : public Renderable // Une portion d'une texture
 {
@@ -19,7 +20,7 @@ class A4ENGINE_API Sprite : public Renderable // Une portion d'une texture
 		Sprite(Sprite&&) = default;
 		~Sprite() = default;
 
-		void Draw(SDLppRenderer& renderer, const Transform& cameraTransform, const Transform& transform) override;
+		void Draw(SDLppRenderer& renderer, const Matrix3& matrix) override;
 
 		int GetHeight() const;
 		const Vector2f& GetOrigin() const;

@@ -9,12 +9,11 @@ public:
 	Shape() = default;
 	~Shape() = default;
 
-	// Create Shape
-	cpShape* GetShape()
-	{
-		return m_shape;
-	}
+	virtual cpShape* CreateShape(cpBody* body) = 0;
+	inline cpShape* GetShape() { return m_shape; }
 
-private:
+	virtual float GetMoment(float mass) = 0;
+
+protected:
 	cpShape* m_shape;
 };
