@@ -2,6 +2,9 @@
 #include <SDL.h>
 #include <A4Engine/AnimationSystem.hpp>
 #include <A4Engine/CameraComponent.hpp>
+#include <A4Engine/ChipmunkBody.hpp>
+#include <A4Engine/ChipmunkShape.hpp>
+#include <A4Engine/ChipmunkSpace.hpp>
 #include <A4Engine/GraphicsComponent.hpp>
 #include <A4Engine/InputManager.hpp>
 #include <A4Engine/Model.hpp>
@@ -45,8 +48,8 @@ struct PlayerControlled {};
 
 struct PhysicsComponent
 {
-	cpBody* body;
-	cpShape* shape;
+	ChipmunkBody* body;
+	ChipmunkShape* shape;
 };
 
 void PlayerControllerSystem(entt::registry& registry)
@@ -58,17 +61,18 @@ void PlayerControllerSystem(entt::registry& registry)
 		auto& entityPhysics = view.get<PhysicsComponent>(entity);
 
 		Vector2f velocity = Vector2f(0.f, 0.f);
+		velocity.y = entityPhysics.body->GetLinearVelocity().y;
+
 		if (entityInput.left)
 			velocity.x -= 500.f;
 
 		if (entityInput.right)
 			velocity.x += 500.f;
 
-		if (entityInput.jump)
-			cpBodyApplyImpulseAtWorldPoint(entityPhysics.body, cpv(0.f, -1000.f), cpBodyGetPosition(entityPhysics.body));
+		if (entityInput.jump && velocity.y < 1.f)
+			velocity.y = -500.f;
 
-		float velY = cpBodyGetVelocity(entityPhysics.body).y;
-		cpBodySetVelocity(entityPhysics.body, cpv(velocity.x, velY));
+		entityPhysics.body->SetLinearVelocity(velocity);
 	}
 }
 
@@ -147,33 +151,25 @@ int main()
 			registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
 	});
 
-	cpSpace* space = cpSpaceNew();
-	cpSpaceSetGravity(space, { 0.f, 981.f });
-	cpSpaceSetDamping(space, 0.5f);
+	ChipmunkSpace space;
+	space.SetGravity({ 0.f, 981.f });
+	space.SetDamping(0.5f);
 
-	cpBody* boxBody = cpBodyNew(100.f, cpMomentForBox(100.f, 256, 256));
-	cpSpaceAddBody(space, boxBody);
-	cpBodySetPosition(boxBody, cpv(400.f, 400.f));
-	cpBodySetAngle(boxBody, 15.f * Rad2Deg);
+	ChipmunkBody boxBody = ChipmunkBody::Build(space, 100.f, ChipmunkShape::ComputeBoxMoment(100.f, 256.f, 256.f));
+	boxBody.SetPosition({ 400.f, 400.f });
+	boxBody.SetRotation(15.f);
 
-	cpShape* boxShape = cpBoxShapeNew(boxBody, 256, 256, 0.f);
-	cpShapeGetCenterOfGravity(boxShape);
-	cpSpaceAddShape(space, boxShape);
+	ChipmunkShape boxShape = ChipmunkShape::BuildBox(boxBody, 256.f, 256.f);
 
-	cpBody* floorBody = cpBodyNewStatic();
+	ChipmunkBody floorBody = ChipmunkBody::BuildStatic(space);
+	ChipmunkShape floorShape = ChipmunkShape::BuildSegment(floorBody, Vector2f(0.f, 720.f), Vector2f(10'000.f, 720.f));
 
-	cpShape* floorShape = cpSegmentShapeNew(floorBody, cpv(0.f, 720.f), cpv(10'000.f, 720.f), 0.f);
-	cpSpaceAddShape(space, floorShape);
-
-	cpBody* playerBody = cpBodyNew(80.f, std::numeric_limits<float>::infinity());
-	cpShape* playerShape = cpBoxShapeNew(playerBody, 128.f, 256.f, 0.f);
+	ChipmunkBody playerBody = ChipmunkBody::Build(space, 80.f, std::numeric_limits<float>::max());
+	ChipmunkShape playerShape = ChipmunkShape::BuildBox(playerBody, 128.f, 256.f);
 
 	auto& playerPhysics = registry.get<PhysicsComponent>(runner);
-	playerPhysics.body = playerBody;
-	cpSpaceAddBody(space, playerPhysics.body);
-
-	playerPhysics.shape = playerShape;
-	cpSpaceAddShape(space, playerPhysics.shape);
+	playerPhysics.body = &playerBody;
+	playerPhysics.shape = &playerShape;
 
 	InputManager::Instance().BindKeyPressed(SDLK_SPACE, "Jump");
 
@@ -219,23 +215,17 @@ int main()
 		physicsAccumulator += deltaTime;
 		while (physicsAccumulator >= physicsTimestep)
 		{
-			cpSpaceStep(space, physicsTimestep);
+			space.Step(physicsTimestep);
 			physicsAccumulator -= physicsTimestep;
 		}
 
 		// Box
-		cpVect position = cpBodyGetPosition(boxBody);
-		float rotation = cpBodyGetAngle(boxBody) * Rad2Deg;
-
-		registry.get<Transform>(box).SetPosition(Vector2f(position.x, position.y));
-		registry.get<Transform>(box).SetRotation(rotation);
+		registry.get<Transform>(box).SetPosition(boxBody.GetPosition());
+		registry.get<Transform>(box).SetRotation(boxBody.GetRotation());
 
 		// Player
-		cpVect playerPos = cpBodyGetPosition(playerBody);
-		float playerRot = cpBodyGetAngle(playerBody) * Rad2Deg;
-
-		registry.get<Transform>(runner).SetPosition(Vector2f(playerPos.x, playerPos.y));
-		registry.get<Transform>(box).SetRotation(playerRot);
+		registry.get<Transform>(runner).SetPosition(playerBody.GetPosition());
+		registry.get<Transform>(runner).SetRotation(playerBody.GetRotation());
 
 		animSystem.Update(deltaTime);
 		velocitySystem.Update(deltaTime);
@@ -251,14 +241,6 @@ int main()
 
 		renderer.Present();
 	}
-
-	cpSpaceRemoveShape(space, boxShape);
-	cpShapeFree(boxShape);
-
-	cpSpaceRemoveBody(space, boxBody);
-	cpBodyFree(boxBody);
-
-	cpSpaceFree(space);
 
 	return 0;
 }
