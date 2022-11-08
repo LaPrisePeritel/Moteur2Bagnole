@@ -1,11 +1,11 @@
 #pragma once
 
+#include <A4Engine/Export.hpp>
+#include <A4Engine/Vector2.hpp>
 #include <array>
 #include <vector>
 
-class Vector2f;
-
-class Matrix3
+class A4ENGINE_API Matrix3
 {
 public:
 	Matrix3(std::array<std::array<float, 3>, 3> data);

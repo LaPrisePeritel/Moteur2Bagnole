@@ -23,6 +23,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
+#include <A4Engine/Matrix3.hpp>
 #include <A4Engine/RigidBodyComponent.hpp>
 
 entt::entity CreateBox(entt::registry& registry);

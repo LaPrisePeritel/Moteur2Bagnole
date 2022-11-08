@@ -1,6 +1,8 @@
 #include <A4Engine/Vector2.hpp>
 #include <A4Engine/Math.hpp>
 #include <cmath>
+#include <A4Engine/Matrix3.hpp>
+#include <fmt/core.h>
 // le #pragma once n'est pas nécessaire ici, un seul fichier va nous inclure directement et il est déjà protégé
 
 template<typename T>
@@ -105,6 +107,19 @@ Vector2<T>& Vector2<T>::operator/=(T value)
 	y /= value;
 
 	return *this;
+}
+
+template<typename T>
+Vector2<T> Vector2<T>::operator*(const Matrix3& matrix) const
+{
+	float vIn[3] = { x, y, 1 };
+	float vOut[3]{};
+
+	for (auto i = 0; i < 3; i++)
+		for (auto j = 0; j < 3; j++)
+			vOut[i] += matrix(i, j) * vIn[j];
+
+	return Vector2(vOut[0], vOut[1]);
 }
 
 template<typename T>
