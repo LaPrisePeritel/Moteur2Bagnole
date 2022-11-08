@@ -1,6 +1,7 @@
 #pragma once
 
 #include <A4Engine/Export.hpp>
+#include <A4Engine/Matrix3.hpp>
 
 class SDLppRenderer;
 class SDLppTexture;
@@ -12,5 +13,5 @@ class A4ENGINE_API Renderable // interface
 		// Il est important pour une classe virtuelle de base d'avoir un destructeur virtuel
 		virtual ~Renderable() = default;
 
-		virtual void Draw(SDLppRenderer& renderer, const Transform& cameraTransform, const Transform& transform) = 0;
+		virtual void Draw(SDLppRenderer& renderer, const Matrix3f& matrix) = 0;
 };

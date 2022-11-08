@@ -16,23 +16,24 @@ m_registry(registry)
 void RenderSystem::Update(float /*deltaTime*/)
 {
 	// Sélection de la caméra
-	const Transform* cameraTransform = nullptr;
+	Matrix3f cameraMatrix = Matrix3f::Identity();
+
 	auto cameraView = m_registry.view<Transform, CameraComponent>();
+	bool cameraFound = false;
 	for (entt::entity entity : cameraView)
 	{
 		// Nous avons déjà une caméra ?
-		if (cameraTransform)
+		if (cameraFound)
 			fmt::print(stderr, fg(fmt::color::red), "warning: multiple camera found\n");
 		
 		Transform& entityTransform = cameraView.get<Transform>(entity);
-		cameraTransform = &entityTransform;
+		cameraMatrix = entityTransform.GetTransformMatrix();
+		cameraMatrix = cameraMatrix.Inverse();
+		cameraFound = true;
 	}
 
-	if (!cameraTransform)
-	{
+	if (!cameraFound)
 		fmt::print(stderr, fg(fmt::color::red), "warning: no camera found\n");
-		return;
-	}
 
 	auto view = m_registry.view<Transform, GraphicsComponent>();
 	for (entt::entity entity : view)
@@ -40,6 +41,7 @@ void RenderSystem::Update(float /*deltaTime*/)
 		Transform& entityTransform = view.get<Transform>(entity);
 		GraphicsComponent& entityGraphics = view.get<GraphicsComponent>(entity);
 
-		entityGraphics.renderable->Draw(m_renderer, *cameraTransform, entityTransform);
+		Matrix3f entityMatrix = entityTransform.GetTransformMatrix();
+		entityGraphics.renderable->Draw(m_renderer, cameraMatrix * entityMatrix);
 	}
 }

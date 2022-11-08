@@ -89,7 +89,7 @@ int main()
 	SDLpp sdl;
 
 	SDLppWindow window("A4Engine", 1280, 720);
-	SDLppRenderer renderer(window, "", SDL_RENDERER_PRESENTVSYNC);
+	SDLppRenderer renderer(window, "direct3d11", SDL_RENDERER_PRESENTVSYNC);
 
 	ResourceManager resourceManager(renderer);
 	InputManager inputManager;

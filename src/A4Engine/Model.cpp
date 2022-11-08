@@ -44,7 +44,7 @@ m_indices(std::move(indices))
 	}
 }
 
-void Model::Draw(SDLppRenderer& renderer, const Transform& cameraTransform, const Transform& transform)
+void Model::Draw(SDLppRenderer& renderer, const Matrix3f& matrix)
 {
 	// On s'assure que les deux tableaux font la même taille (assert crash immédiatement le programme si la condition passée est fausse)
 	assert(m_vertices.size() == m_sdlVertices.size());
@@ -54,8 +54,7 @@ void Model::Draw(SDLppRenderer& renderer, const Transform& cameraTransform, cons
 		SDL_Vertex& sdlVertex = m_sdlVertices[i];
 
 		// tex_coord et color sont déjà gérés par le constructeur
-		Vector2f transformedPos = transform.TransformPoint(modelVertex.pos);
-		transformedPos = cameraTransform.TransformInversePoint(transformedPos);
+		Vector2f transformedPos = matrix * modelVertex.pos;
 		sdlVertex.position = SDL_FPoint{ transformedPos.x, transformedPos.y };
 	}
 
