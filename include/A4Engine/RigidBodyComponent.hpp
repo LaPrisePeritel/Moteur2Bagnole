@@ -2,9 +2,10 @@
 
 #include <A4Engine/Export.hpp>
 #include <chipmunk/chipmunk.h>
+#include <A4Engine/Shape.hpp>
+#include <vector>
 
 class A4ENGINE_API RigidBodyComponent {
-
 public:
 
 	RigidBodyComponent(float mass, float width, float height);
@@ -24,5 +25,5 @@ public:
 
 private:
 	cpBody* m_body;
-
+	std::vector<Shape> m_shapeBank;
 };

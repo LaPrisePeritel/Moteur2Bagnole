@@ -6,17 +6,10 @@
 class A4ENGINE_API BoxShape : Shape
 {
 public:
-	BoxShape();
-	~BoxShape();
+	BoxShape(float width, float height);
+	~BoxShape() = default;
 
 private:
-
+	float m_width;
+	float m_height;
 };
-
-BoxShape::BoxShape()
-{
-}
-
-BoxShape::~BoxShape()
-{
-}

@@ -10,13 +10,4 @@ public:
 	~SegmentShape();
 
 private:
-
 };
-
-SegmentShape::SegmentShape()
-{
-}
-
-SegmentShape::~SegmentShape()
-{
-}

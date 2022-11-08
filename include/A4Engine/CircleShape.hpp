@@ -6,17 +6,9 @@
 class A4ENGINE_API CircleShape : Shape
 {
 public:
-	CircleShape();
-	~CircleShape();
+	CircleShape(float radius);
+	~CircleShape() = default;
 
 private:
-
+	float m_radius;
 };
-
-CircleShape::CircleShape()
-{
-}
-
-CircleShape::~CircleShape()
-{
-}
