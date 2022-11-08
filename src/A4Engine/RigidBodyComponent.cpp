@@ -1,5 +1,5 @@
-#include "..\..\include\A4Engine\RigidBodyComponent.hpp"
 #include <A4Engine/RigidBodyComponent.hpp>
+#include <algorithm>
 
 RigidBodyComponent::RigidBodyComponent(float mass, float width, float height)
 {
@@ -45,7 +45,7 @@ void RigidBodyComponent::AddShape(Shape* shape)
 
 void RigidBodyComponent::RemoveShape(Shape* shape)
 {
-	
+	m_shapeBank.erase(std::find(m_shapeBank.begin(), m_shapeBank.end(), shape));
 }
 
 void RigidBodyComponent::SetMoment()
