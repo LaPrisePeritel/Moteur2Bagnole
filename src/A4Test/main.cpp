@@ -1,19 +1,16 @@
 #include <AL/al.h>
 #include <AL/alc.h>
-#define DR_WAV_IMPLEMENTATION
-#include <A4Engine/CameraComponent.hpp>
-#include <A4Engine/GraphicsComponent.hpp>
-#include <A4Engine/InputManager.hpp>
-#include <A4Engine/ResourceManager.hpp>
-#include <A4Engine/Sprite.hpp>
-#include <A4Engine/Transform.hpp>
-#include <A4Engine/SDLpp.hpp>
-#include <A4Engine/SDLppRenderer.hpp>
-#include <A4Engine/SDLppWindow.hpp>
-#include <dr_wav.h>
 #include <iostream>
-#include <string>
 #include <vector>
+#define DR_WAV_IMPLEMENTATION
+#include <dr_wav.h>
+#include <SDL.h>
+#include <A4Engine/SDLpp.hpp>
+#include <A4Engine/SDLppImGui.hpp>
+#include <A4Engine/SDLppRenderer.hpp>
+#include <A4Engine/SDLppTexture.hpp>
+#include <A4Engine/SDLppWindow.hpp>
+#include <A4Engine/ResourceManager.hpp>
 
 int main()
 {
@@ -35,9 +32,12 @@ int main()
 	ALCcontext* context = alcCreateContext(device, nullptr);
 	alcMakeContextCurrent(context);
 
+	ALuint buffer;
+	alGenBuffers(1, &buffer);
+
 	// On va faire des trucs !
 	drwav wav;
-	if (!drwav_init_file(&wav, "assets/siren.wav", nullptr))
+	if (!drwav_init_file(&wav, "assets/sounds/MaenderAlkoor.wav", nullptr))
 	{
 		std::cout << "failed to load file" << std::endl;
 		return 0;
@@ -46,12 +46,12 @@ int main()
 	std::vector<std::int16_t> samples(wav.totalPCMFrameCount * wav.channels);
 	drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, samples.data());
 
-	ALuint buffer;
-	alGenBuffers(1, &buffer);
+	/*for (size_t i = 0; i < 44100; i++)
+		samples.push_back(std::sin(float(2 * 3.14159f * i / 44100 * 850)) * 32767);*/
 
-	alBufferData(buffer, 
-		(wav.channels == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, 
-		samples.data(), 
+	alBufferData(buffer,
+		(wav.channels == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16,
+		samples.data(),
 		samples.size() * sizeof(std::int16_t),
 		wav.sampleRate);
 
@@ -63,70 +63,33 @@ int main()
 	alSourcei(source, AL_BUFFER, buffer);
 	alSourcei(source, AL_LOOPING, AL_TRUE);
 
-	alListener3f(AL_POSITION, 640.f / 100.f, 360.f / 100.f, 0.f);
+	alSource3f(source, AL_POSITION, 5.f, 0.f, 0.f);
 
-	alSourcePlay(source);
+	alListener3f(AL_POSITION, 45.f, 0.f, 0.f);
+
+	//alSourcePlay(source);
 
 	SDLpp sdl;
-	SDLppWindow window("Test audio", 1280, 720);
+
+	SDLppWindow window("A4Test", 1280, 720);
 	SDLppRenderer renderer(window, "", SDL_RENDERER_PRESENTVSYNC);
 
 	ResourceManager resourceManager(renderer);
-	InputManager inputManager;
-
-	inputManager.BindKeyPressed(SDLK_LEFT, "MoveLeft");
-	inputManager.BindKeyPressed(SDLK_RIGHT, "MoveRight");
-
-	Sprite ambulance(resourceManager.GetTexture("assets/ambulance.png"));
-	ambulance.Resize(ambulance.GetWidth() * 0.1f, ambulance.GetHeight() * 0.1f);
-	ambulance.SetOrigin(Vector2f(0.5f, 0.5f));
-
-	Transform cameraTransform;
-	Transform ambulanceTransform;
-	ambulanceTransform.SetPosition(Vector2f(640, 360));
-
-	Uint64 lastUpdate = SDL_GetPerformanceCounter();
 
 	bool isOpen = true;
 	while (isOpen)
 	{
-		Uint64 now = SDL_GetPerformanceCounter();
-		float deltaTime = (float)(now - lastUpdate) / SDL_GetPerformanceFrequency();
-		lastUpdate = now;
-
 		SDL_Event event;
 		while (sdl.PollEvent(&event))
 		{
-			if (event.type == SDL_QUIT)
+			if (event.type == SDL_WINDOWEVENT_CLOSE)
 				isOpen = false;
-
-			inputManager.HandleEvent(event);
 		}
-		
-		renderer.SetDrawColor(0, 127, 255, 255);
-		renderer.Clear();
-
-		Vector2f oldPosition = ambulanceTransform.GetGlobalPosition();
-
-		if (inputManager.IsActive("MoveLeft"))
-			ambulanceTransform.Translate(Vector2f(-1000.f * deltaTime, 0.f));
-
-		if (inputManager.IsActive("MoveRight"))
-			ambulanceTransform.Translate(Vector2f(1000.f * deltaTime, 0.f));
-
-		Vector2f ambulancePos = ambulanceTransform.GetGlobalPosition();
-		Vector2f velocity = (ambulancePos - oldPosition) / deltaTime;
-
-		alSource3f(source, AL_POSITION, ambulancePos.x / 100.f, ambulancePos.y / 100.f, 0.f);
-		alSource3f(source, AL_VELOCITY, velocity.x / 100.f, velocity.y / 100.f, 0.f);
-
-		ambulance.Draw(renderer, cameraTransform, ambulanceTransform);
-
-		renderer.Present();
 	}
 
-	// Libération
-	alDeleteSources(1, &source);
+	std::getchar();
+
+	// Libérations
 	alDeleteBuffers(1, &buffer);
 
 	alcMakeContextCurrent(nullptr);

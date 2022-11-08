@@ -115,8 +115,8 @@ int main()
 	InputManager::Instance().BindKeyPressed(SDLK_DOWN, "CameraMoveDown");
 
 	std::shared_ptr<Spritesheet> spriteSheet = std::make_shared<Spritesheet>();
-	spriteSheet->AddAnimation("idle", 5, 0.1f, Vector2i{ 0, 0 },  Vector2i{ 32, 32 });
-	spriteSheet->AddAnimation("run",  8, 0.1f, Vector2i{ 0, 32 }, Vector2i{ 32, 32 });
+	spriteSheet->AddAnimation("idle", 5, 0.1f, Vector2i{ 0, 0 }, Vector2i{ 32, 32 });
+	spriteSheet->AddAnimation("run", 8, 0.1f, Vector2i{ 0, 32 }, Vector2i{ 32, 32 });
 	spriteSheet->AddAnimation("jump", 4, 0.1f, Vector2i{ 0, 64 }, Vector2i{ 32, 32 });
 
 	entt::registry registry;
@@ -141,12 +141,12 @@ int main()
 	InputManager::Instance().BindKeyPressed(SDL_KeyCode::SDLK_r, "PlayRun");
 
 	InputManager::Instance().OnAction("PlayRun", [&](bool pressed)
-	{
-		if (pressed)
-			registry.get<SpritesheetComponent>(runner).PlayAnimation("run");
-		else
-			registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
-	});
+		{
+			if (pressed)
+				registry.get<SpritesheetComponent>(runner).PlayAnimation("run");
+			else
+				registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
+		});
 
 	cpSpace* space = cpSpaceNew();
 	cpSpaceSetGravity(space, { 0.f, 981.f });
@@ -191,7 +191,7 @@ int main()
 	while (isOpen)
 	{
 		Uint64 now = SDL_GetPerformanceCounter();
-		float deltaTime = (float) (now - lastUpdate) / SDL_GetPerformanceFrequency();
+		float deltaTime = (float)(now - lastUpdate) / SDL_GetPerformanceFrequency();
 		lastUpdate = now;
 
 		fmt::print("FPS: {}\n", 1.f / deltaTime);

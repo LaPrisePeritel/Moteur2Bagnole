@@ -1,6 +1,6 @@
 add_rules("mode.debug", "mode.release")
 
-add_requires("chipmunk2d", "entt", "fmt", "libsdl", "libsdl_image", "lz4", "nlohmann_json")
+add_requires("chipmunk2d", "entt", "fmt", "libsdl", "libsdl_image", "lz4", "nlohmann_json", "openal-soft", "dr_wav")
 add_requires("imgui", { configs = { sdl2 = true }})
 add_requires("openal-soft", "dr_wav")
 
