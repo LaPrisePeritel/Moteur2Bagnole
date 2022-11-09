@@ -1,12 +1,14 @@
 #include <A4Engine/PhysicsSystem.hpp>
+#include <A4Engine/Transform.hpp>
 
 
-PhysicsSystem::PhysicsSystem(float gravity, float damping, float timeStep) :
-	m_timeStep(timeStep)
+PhysicsSystem::PhysicsSystem(entt::registry& registry): 
+m_registry(registry)
 {
 	m_space = cpSpaceNew();
-	SetGravity(gravity);
-	SetDamping(damping);
+
+	SetGravity(981);
+	SetDamping(.5f);
 }
 
 PhysicsSystem::~PhysicsSystem()
@@ -25,6 +27,11 @@ float PhysicsSystem::GetGravity()
 float PhysicsSystem::GetDamping()
 {
 	return cpSpaceGetDamping(m_space);
+}
+
+cpSpace* PhysicsSystem::GetSpace()
+{
+	return m_space;
 }
 
 void PhysicsSystem::SetGravity(float value)
@@ -55,5 +62,21 @@ void PhysicsSystem::Step(float deltaTime)
 	while (m_physicsAccumulator >= m_timeStep) {
 		cpSpaceStep(m_space, m_timeStep);
 		m_physicsAccumulator -= m_timeStep;
+	}
+}
+
+void PhysicsSystem::Update(float deltaTime)
+{
+	auto RigidBodyView = m_registry.view<RigidBodyComponent, Transform>();
+	for (entt::entity entity : RigidBodyView)
+	{
+		RigidBodyComponent& entityRigidBody = RigidBodyView.get<RigidBodyComponent>(entity);
+		Transform& entityTransform = RigidBodyView.get<Transform>(entity);
+
+		cpVect pos = entityRigidBody.GetPosition();
+		float rot = entityRigidBody.GetAngle() * Rad2Deg;
+
+		entityTransform.SetPosition(Vector2f(pos.x, pos.y));
+		entityTransform.SetRotation(rot);
 	}
 }

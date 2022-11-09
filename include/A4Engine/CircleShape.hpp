@@ -3,7 +3,7 @@
 #include <A4Engine/Export.hpp>
 #include <A4Engine/Shape.hpp>
 
-class A4ENGINE_API CircleShape : Shape
+class A4ENGINE_API CircleShape : public Shape
 {
 public:
 	CircleShape(float radius, cpVect offset);

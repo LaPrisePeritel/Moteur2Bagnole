@@ -22,8 +22,10 @@ public:
 	float GetAngle();
 	void SetPosition(cpVect pos);
 	void SetAngle(float angle);
-	void AddShape(Shape* shape);
+
+	void AddShape(cpSpace* space, Shape* shape);
 	void RemoveShape(Shape* shape);
+
 	void SetMoment();
 
 private:

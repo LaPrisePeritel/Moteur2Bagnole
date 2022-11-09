@@ -36,10 +36,14 @@ void RigidBodyComponent::SetAngle(float angle)
 	cpBodySetAngle(m_body, angle);
 }
 
-void RigidBodyComponent::AddShape(Shape* shape)
+void RigidBodyComponent::AddShape(cpSpace* space, Shape* shape)
 {
 	shape->CreateShape(m_body);
 	m_shapeBank.push_back(shape);
+
+	cpSpaceAddShape(space, shape->GetShape());
+	cpSpaceAddBody(space, m_body);
+
 	SetMoment();
 }
 

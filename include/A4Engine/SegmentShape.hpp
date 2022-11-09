@@ -3,7 +3,7 @@
 #include <A4Engine/Export.hpp>
 #include <A4Engine/Shape.hpp>
 
-class A4ENGINE_API SegmentShape : Shape
+class A4ENGINE_API SegmentShape : public Shape
 {
 public:
 	SegmentShape(cpVect vector1, cpVect vector2);

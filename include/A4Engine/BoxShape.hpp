@@ -3,7 +3,7 @@
 #include <A4Engine/Export.hpp>
 #include <A4Engine/Shape.hpp>
 
-class A4ENGINE_API BoxShape : Shape
+class A4ENGINE_API BoxShape : public Shape
 {
 public:
 	BoxShape(float width, float height);

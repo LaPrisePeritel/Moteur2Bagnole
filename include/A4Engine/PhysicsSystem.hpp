@@ -2,13 +2,14 @@
 
 #include <A4Engine/Export.hpp>
 #include <chipmunk/chipmunk.h>
+#include <entt/entt.hpp>
 #include <A4Engine/RigidBodyComponent.hpp>
 #include <vector>
 
 class A4ENGINE_API PhysicsSystem {
 public:
 
-	PhysicsSystem(float gravity, float damping, float timeStep);
+	PhysicsSystem(entt::registry& registry);
 	PhysicsSystem(const PhysicsSystem&) = delete;
 	PhysicsSystem(PhysicsSystem&&) = delete;
 	~PhysicsSystem();
@@ -18,6 +19,7 @@ public:
 
 	float GetGravity();
 	float GetDamping();
+	cpSpace* GetSpace();
 	void SetGravity(float value);
 	void SetDamping(float value);
 
@@ -25,12 +27,15 @@ public:
 	void RemoveBody(RigidBodyComponent& body);
 
 	void Step(float deltaTime);
+	void Update(float deltaTime);
 
 private:
+	entt::registry& m_registry;
+
 	cpSpace* m_space;
 	std::vector<RigidBodyComponent> bodies;
 
-	float m_timeStep;
+	float m_timeStep = 1.f / 50;
 	float m_physicsAccumulator;
 
 };
