@@ -19,10 +19,10 @@ class Matrix3
 		Matrix3 Transpose() const;
 
 		T& Value(std::size_t i, std::size_t j);
-		T Value(std::size_t i, std::size_t j) const;
+		const T& Value(std::size_t i, std::size_t j) const;
 
 		T& operator()(std::size_t i, std::size_t j);
-		T operator()(std::size_t i, std::size_t j) const;
+		const T& operator()(std::size_t i, std::size_t j) const;
 
 		Matrix3 operator*(const Matrix3& rhs) const;
 		Vector2<T> operator*(const Vector2<T>& vec) const;

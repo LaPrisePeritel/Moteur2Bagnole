@@ -58,7 +58,7 @@ T& Matrix3<T>::Value(std::size_t i, std::size_t j)
 }
 
 template<typename T>
-T Matrix3<T>::Value(std::size_t i, std::size_t j) const
+const T& Matrix3<T>::Value(std::size_t i, std::size_t j) const
 {
 	return m_values[i * 3 + j];
 }
@@ -70,7 +70,7 @@ T& Matrix3<T>::operator()(std::size_t i, std::size_t j)
 }
 
 template<typename T>
-T Matrix3<T>::operator()(std::size_t i, std::size_t j) const
+const T& Matrix3<T>::operator()(std::size_t i, std::size_t j) const
 {
 	return Value(i, j);
 }
