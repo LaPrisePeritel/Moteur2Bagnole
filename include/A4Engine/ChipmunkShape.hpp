@@ -15,6 +15,8 @@ class A4ENGINE_API ChipmunkShape
 		ChipmunkShape(ChipmunkShape&& body) noexcept;
 		virtual ~ChipmunkShape();
 
+		void SetFriction(float friction);
+
 		ChipmunkShape& operator=(const ChipmunkShape&) = delete;
 		ChipmunkShape& operator=(ChipmunkShape&& body) noexcept;
 

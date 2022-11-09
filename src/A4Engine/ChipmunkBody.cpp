@@ -43,6 +43,12 @@ float ChipmunkBody::GetAngularVelocity() const
 	return static_cast<float>(cpBodyGetAngularVelocity(m_handle) * Rad2Deg);
 }
 
+Vector2f ChipmunkBody::GetCenterOfGravity() const
+{
+	cpVect cog = cpBodyGetCenterOfGravity(m_handle);
+	return Vector2f(static_cast<float>(cog.x), static_cast<float>(cog.y));
+}
+
 Vector2f ChipmunkBody::GetDirection() const
 {
 	cpVect rotation = cpBodyGetRotation(m_handle);
@@ -81,9 +87,35 @@ float ChipmunkBody::GetRotation() const
 	return static_cast<float>(cpBodyGetAngle(m_handle) * Rad2Deg);
 }
 
+bool ChipmunkBody::IsDynamic() const
+{
+	return cpBodyGetType(m_handle) == cpBodyType::CP_BODY_TYPE_DYNAMIC;
+}
+
+bool ChipmunkBody::IsKinematic() const
+{
+	return cpBodyGetType(m_handle) == cpBodyType::CP_BODY_TYPE_KINEMATIC;
+}
+
+bool ChipmunkBody::IsStatic() const
+{
+	return cpBodyGetType(m_handle) == cpBodyType::CP_BODY_TYPE_STATIC;
+}
+
+void ChipmunkBody::ReindexShapes()
+{
+	if (cpSpace* space = cpBodyGetSpace(m_handle))
+		cpSpaceReindexShapesForBody(space, m_handle);
+}
+
 void ChipmunkBody::SetAngularVelocity(float angularVel)
 {
 	cpBodySetAngularVelocity(m_handle, angularVel * Deg2Rad);
+}
+
+void ChipmunkBody::SetCenterOfGravity(const Vector2f& centerOfMass)
+{
+	cpBodySetCenterOfGravity(m_handle, cpv(centerOfMass.x, centerOfMass.y));
 }
 
 void ChipmunkBody::SetLinearVelocity(const Vector2f& velocity)

@@ -74,6 +74,11 @@ void Model::Draw(SDLppRenderer& renderer, const Matrix3f& matrix)
 	}
 }
 
+const std::vector<ModelVertex>& Model::GetVertices() const
+{
+	return m_vertices;
+}
+
 bool Model::IsValid() const
 {
 	// Un modèle peut ne pas avoir de texture/indices, mais il a forcément des vertices

@@ -32,6 +32,8 @@ class A4ENGINE_API Model : public Renderable // Un ensemble de triangles
 
 		void Draw(SDLppRenderer& renderer, const Matrix3f& matrix) override;
 
+		const std::vector<ModelVertex>& GetVertices() const;
+
 		bool IsValid() const;
 
 		bool SaveToFile(const std::filesystem::path& filepath) const;

@@ -1,4 +1,5 @@
 #include <A4Engine/VelocitySystem.hpp>
+#include <A4Engine/RigidBodyComponent.hpp>
 #include <A4Engine/VelocityComponent.hpp>
 #include <A4Engine/Transform.hpp>
 #include <entt/entt.hpp>
@@ -10,7 +11,7 @@ m_registry(registry)
 
 void VelocitySystem::Update(float deltaTime)
 {
-	auto view = m_registry.view<Transform, VelocityComponent>();
+	auto view = m_registry.view<Transform, VelocityComponent>(entt::exclude<VelocityComponent>);
 	for (entt::entity entity : view)
 	{
 		Transform& entityTransform = view.get<Transform>(entity);

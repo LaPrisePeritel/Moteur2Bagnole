@@ -1,9 +1,11 @@
 #pragma once
 
 #include <A4Engine/Export.hpp>
+#include <A4Engine/Matrix3.hpp>
 #include <A4Engine/Vector2.hpp>
 
 struct cpSpace;
+class SDLppRenderer;
 
 class A4ENGINE_API ChipmunkSpace
 {
@@ -12,6 +14,8 @@ class A4ENGINE_API ChipmunkSpace
 		ChipmunkSpace(const ChipmunkSpace&) = delete;
 		ChipmunkSpace(ChipmunkSpace&& space) noexcept;
 		~ChipmunkSpace();
+
+		void DebugDraw(SDLppRenderer& renderer, const Matrix3f& cameraInverseTransform);
 
 		cpSpace* GetHandle() const;
 

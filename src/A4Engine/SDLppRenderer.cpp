@@ -36,6 +36,31 @@ void SDLppRenderer::Clear()
 	SDL_RenderClear(m_renderer);
 }
 
+void SDLppRenderer::DrawLines(const SDL_FPoint* points, std::size_t count)
+{
+	SDL_RenderDrawLinesF(m_renderer, points, static_cast<int>(count));
+}
+
+void SDLppRenderer::DrawTriangles(const SDL_Vertex* vertices, std::size_t count)
+{
+	SDL_RenderGeometry(m_renderer, nullptr, vertices, static_cast<int>(count), nullptr, 0);
+}
+
+void SDLppRenderer::DrawTriangles(const SDL_Vertex* vertices, std::size_t vertCount, int* indices, std::size_t indexCount)
+{
+	SDL_RenderGeometry(m_renderer, nullptr, vertices, static_cast<int>(vertCount), indices, static_cast<int>(indexCount));
+}
+
+void SDLppRenderer::DrawTriangles(const SDLppTexture& texture, const SDL_Vertex* vertices, std::size_t count)
+{
+	SDL_RenderGeometry(m_renderer, texture.GetHandle(), vertices, static_cast<int>(count), nullptr, 0);
+}
+
+void SDLppRenderer::DrawTriangles(const SDLppTexture& texture, const SDL_Vertex* vertices, std::size_t vertCount, int* indices, std::size_t indexCount)
+{
+	SDL_RenderGeometry(m_renderer, texture.GetHandle(), vertices, static_cast<int>(vertCount), indices, static_cast<int>(indexCount));
+}
+
 SDL_Renderer* SDLppRenderer::GetHandle() const
 {
 	return m_renderer;

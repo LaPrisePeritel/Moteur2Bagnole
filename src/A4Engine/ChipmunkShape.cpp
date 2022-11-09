@@ -29,6 +29,11 @@ ChipmunkShape::~ChipmunkShape()
 	}
 }
 
+void ChipmunkShape::SetFriction(float friction)
+{
+	cpShapeSetFriction(m_handle, friction);
+}
+
 ChipmunkShape& ChipmunkShape::operator=(ChipmunkShape&& space) noexcept
 {
 	// On possède déjà potentiellement une Surface
@@ -46,7 +51,7 @@ ChipmunkShape ChipmunkShape::BuildBox(ChipmunkBody& body, float width, float hei
 
 ChipmunkShape ChipmunkShape::BuildBox(ChipmunkBody& body, float left, float bottom, float right, float top, float radius)
 {
-	return ChipmunkShape(body, cpBoxShapeNew2(body.GetHandle(), cpBB{ left, bottom, right, top }, radius));
+	return ChipmunkShape(body, cpBoxShapeNew2(body.GetHandle(), cpBB{ left, top, right, bottom }, radius));
 }
 
 ChipmunkShape ChipmunkShape::BuildBox(ChipmunkBody& body, const Vector2f& topLeftCorner, const Vector2f& bottomRightCorner, float radius)
@@ -89,7 +94,7 @@ float ChipmunkShape::ComputeBoxMoment(float mass, float width, float height)
 
 float ChipmunkShape::ComputeBoxMoment(float mass, float left, float bottom, float right, float top)
 {
-	return static_cast<float>(cpMomentForBox2(mass, cpBB{ left, bottom, right, top }));
+	return static_cast<float>(cpMomentForBox2(mass, cpBB{ left, top, right, bottom }));
 }
 
 float ChipmunkShape::ComputeBoxMoment(float mass, const Vector2f& topLeftCorner, const Vector2f& bottomRightCorner)
