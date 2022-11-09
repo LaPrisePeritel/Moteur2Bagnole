@@ -86,7 +86,11 @@ const Vector2f& Transform::GetScale() const
 
 Matrix3f Transform::GetTransformMatrix() const
 {
-	return Matrix3f::Translate(GetGlobalPosition()) * Matrix3f::Rotate(GetGlobalRotation()) * Matrix3f::Scale(GetGlobalScale());
+	Matrix3f transformMatrix = Matrix3f::Translate(m_position) * Matrix3f::Rotate(m_rotation) * Matrix3f::Scale(m_scale);
+	if (m_parent)
+		transformMatrix = transformMatrix * m_parent->GetTransformMatrix();
+
+	return transformMatrix;
 }
 
 void Transform::Rotate(float rotation)
