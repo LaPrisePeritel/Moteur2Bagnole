@@ -1,6 +1,5 @@
 #pragma once
 
-#include <A4Engine/Export.hpp>
 #include <A4Engine/Vector2.hpp>
 #include <array>
 #include <ostream>
@@ -10,9 +9,6 @@ template<typename T>
 class Matrix3
 {
 	public:
-	Matrix3(std::array<std::array<float, 3>, 3> data);
-	Matrix3(float data[3][3]);
-
 		Matrix3() = default;
 		Matrix3(std::array<T, 3 * 3> values);
 

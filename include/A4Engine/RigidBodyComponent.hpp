@@ -1,39 +1,6 @@
 #pragma once
 
 #include <A4Engine/Export.hpp>
-<<<<<<< HEAD
-#include <chipmunk/chipmunk.h>
-#include <A4Engine/Shape.hpp>
-#include <vector>
-
-class A4ENGINE_API RigidBodyComponent {
-public:
-
-	RigidBodyComponent(float mass, float width, float height);
-	RigidBodyComponent(const RigidBodyComponent&) = default;
-	RigidBodyComponent(RigidBodyComponent&&) = default;
-	~RigidBodyComponent();
-
-	RigidBodyComponent& operator=(const RigidBodyComponent&) = default;
-	RigidBodyComponent& operator=(RigidBodyComponent&&) = default;
-
-	cpBody* GetBody();
-
-	cpVect GetPosition();
-	float GetAngle();
-	void SetPosition(cpVect pos);
-	void SetAngle(float angle);
-
-	void AddShape(cpSpace* space, Shape* shape);
-	void RemoveShape(Shape* shape);
-
-	void SetMoment();
-
-private:
-	cpBody* m_body;
-	std::vector<Shape*> m_shapeBank;
-};
-=======
 #include <A4Engine/ChipmunkBody.hpp>
 #include <A4Engine/ChipmunkShape.hpp>
 #include <memory>
@@ -86,4 +53,3 @@ class A4ENGINE_API RigidBodyComponent
 		ChipmunkBody m_body;
 		std::unordered_map<std::shared_ptr<CollisionShape>, ShapeData> m_shapes;
 };
->>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3

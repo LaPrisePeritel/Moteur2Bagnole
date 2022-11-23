@@ -4,7 +4,6 @@
 #include <A4Engine/Export.hpp>
 #include <A4Engine/Renderable.hpp>
 #include <A4Engine/Vector2.hpp>
-#include <A4Engine/Matrix3.hpp>
 #include <nlohmann/json_fwd.hpp> //< header spécial qui fait des déclarations anticipées des classes de la lib
 #include <SDL.h>
 #include <filesystem>
@@ -31,13 +30,9 @@ class A4ENGINE_API Model : public Renderable // Un ensemble de triangles
 		Model(Model&&) = default;
 		~Model() = default;
 
-<<<<<<< HEAD
-		void Draw(SDLppRenderer& renderer, const Matrix3& matrix) override;
-=======
 		void Draw(SDLppRenderer& renderer, const Matrix3f& matrix) override;
 
 		const std::vector<ModelVertex>& GetVertices() const;
->>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 
 		bool IsValid() const;
 

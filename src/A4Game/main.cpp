@@ -29,10 +29,6 @@
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_sdlrenderer.h>
-#include <A4Engine/Matrix3.hpp>
-#include <A4Engine/RigidBodyComponent.hpp>
-#include <A4Engine/BoxShape.hpp>
-#include <A4Engine/PhysicsSystem.hpp>
 
 entt::entity CreateBox(entt::registry& registry, std::shared_ptr<CollisionShape> shape);
 entt::entity CreateCamera(entt::registry& registry);
@@ -72,12 +68,8 @@ void PlayerControllerSystem(entt::registry& registry)
 
 		if (entityInput.jump && velocity.y < 1.f)
 			velocity.y = -500.f;
-		if (entityInput.jump)
-			cpBodyApplyImpulseAtWorldPoint(entityPhysics.GetBody(), cpv(0.f, -1000.f), cpBodyGetPosition(entityPhysics.GetBody()));
 
 		entityPhysics.SetLinearVelocity(velocity);
-		float velY = cpBodyGetVelocity(entityPhysics.GetBody()).y;
-		cpBodySetVelocity(entityPhysics.GetBody(), cpv(velocity.x, velY));
 	}
 }
 
@@ -123,8 +115,8 @@ int main()
 	InputManager::Instance().BindKeyPressed(SDLK_DOWN, "CameraMoveDown");
 
 	std::shared_ptr<Spritesheet> spriteSheet = std::make_shared<Spritesheet>();
-	spriteSheet->AddAnimation("idle", 5, 0.1f, Vector2i{ 0, 0 }, Vector2i{ 32, 32 });
-	spriteSheet->AddAnimation("run", 8, 0.1f, Vector2i{ 0, 32 }, Vector2i{ 32, 32 });
+	spriteSheet->AddAnimation("idle", 5, 0.1f, Vector2i{ 0, 0 },  Vector2i{ 32, 32 });
+	spriteSheet->AddAnimation("run",  8, 0.1f, Vector2i{ 0, 32 }, Vector2i{ 32, 32 });
 	spriteSheet->AddAnimation("jump", 4, 0.1f, Vector2i{ 0, 64 }, Vector2i{ 32, 32 });
 
 	entt::registry registry;
@@ -180,7 +172,7 @@ int main()
 	while (isOpen)
 	{
 		Uint64 now = SDL_GetPerformanceCounter();
-		float deltaTime = (float)(now - lastUpdate) / SDL_GetPerformanceFrequency();
+		float deltaTime = (float) (now - lastUpdate) / SDL_GetPerformanceFrequency();
 		lastUpdate = now;
 
 		SDL_Event event;
@@ -263,7 +255,6 @@ entt::entity CreateBox(entt::registry& registry, std::shared_ptr<CollisionShape>
 	entt::entity entity = registry.create();
 	registry.emplace<GraphicsComponent>(entity, std::move(box));
 	registry.emplace<Transform>(entity);
-	registry.emplace<RigidBodyComponent>(entity, 300.f);
 
 	auto& entityPhysics = registry.emplace<RigidBodyComponent>(entity, 250.f);
 	entityPhysics.AddShape(std::move(shape));

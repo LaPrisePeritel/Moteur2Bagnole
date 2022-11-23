@@ -1,67 +1,4 @@
 #include <A4Engine/RigidBodyComponent.hpp>
-<<<<<<< HEAD
-#include <algorithm>
-
-RigidBodyComponent::RigidBodyComponent(float mass, float width, float height)
-{
-	m_body = cpBodyNew(mass, cpMomentForBox(mass, width, height));
-}
-
-RigidBodyComponent::~RigidBodyComponent()
-{
-	cpBodyFree(m_body);
-}
-
-cpBody* RigidBodyComponent::GetBody()
-{
-	return m_body;
-}
-
-cpVect RigidBodyComponent::GetPosition()
-{
-	return cpBodyGetPosition(m_body);
-}
-
-float RigidBodyComponent::GetAngle()
-{
-	return cpBodyGetAngle(m_body);
-}
-
-void RigidBodyComponent::SetPosition(cpVect pos)
-{
-	cpBodySetPosition(m_body, pos);
-}
-
-void RigidBodyComponent::SetAngle(float angle)
-{
-	cpBodySetAngle(m_body, angle);
-}
-
-void RigidBodyComponent::AddShape(cpSpace* space, Shape* shape)
-{
-	shape->CreateShape(m_body);
-	m_shapeBank.push_back(shape);
-
-	cpSpaceAddShape(space, shape->GetShape());
-	cpSpaceAddBody(space, m_body);
-
-	SetMoment();
-}
-
-void RigidBodyComponent::RemoveShape(Shape* shape)
-{
-	m_shapeBank.erase(std::find(m_shapeBank.begin(), m_shapeBank.end(), shape));
-}
-
-void RigidBodyComponent::SetMoment()
-{
-	float tmp = 0;
-	for (const auto& shape : m_shapeBank) {
-		tmp += shape->GetMoment(cpBodyGetMass(m_body));
-	}
-
-	cpBodySetMoment(m_body, tmp);
-=======
 #include <A4Engine/ChipmunkShape.hpp>
 #include <A4Engine/CollisionShape.hpp>
 #include <A4Engine/PhysicsSystem.hpp>
@@ -177,5 +114,4 @@ void RigidBodyComponent::RecomputeMoment()
 		moment += shape->ComputeMoment(mass, shapeData.offset);
 	
 	m_body.SetMoment(moment);
->>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 }
