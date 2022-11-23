@@ -2,11 +2,17 @@
 #include <SDL.h>
 #include <A4Engine/AnimationSystem.hpp>
 #include <A4Engine/CameraComponent.hpp>
+#include <A4Engine/ChipmunkBody.hpp>
+#include <A4Engine/ChipmunkShape.hpp>
+#include <A4Engine/ChipmunkSpace.hpp>
+#include <A4Engine/CollisionShape.hpp>
 #include <A4Engine/GraphicsComponent.hpp>
 #include <A4Engine/InputManager.hpp>
 #include <A4Engine/Model.hpp>
+#include <A4Engine/PhysicsSystem.hpp>
 #include <A4Engine/RenderSystem.hpp>
 #include <A4Engine/ResourceManager.hpp>
+#include <A4Engine/RigidBodyComponent.hpp>
 #include <A4Engine/SDLpp.hpp>
 #include <A4Engine/SDLppImGui.hpp>
 #include <A4Engine/SDLppRenderer.hpp>
@@ -28,7 +34,7 @@
 #include <A4Engine/BoxShape.hpp>
 #include <A4Engine/PhysicsSystem.hpp>
 
-entt::entity CreateBox(entt::registry& registry);
+entt::entity CreateBox(entt::registry& registry, std::shared_ptr<CollisionShape> shape);
 entt::entity CreateCamera(entt::registry& registry);
 entt::entity CreateHouse(entt::registry& registry);
 entt::entity CreateRunner(entt::registry& registry, std::shared_ptr<Spritesheet> spritesheet);
@@ -47,12 +53,6 @@ struct InputComponent
 
 struct PlayerControlled {};
 
-struct PhysicsComponent
-{
-	cpBody* body;
-	cpShape* shape;
-};
-
 void PlayerControllerSystem(entt::registry& registry)
 {
 	auto view = registry.view<RigidBodyComponent, InputComponent>();
@@ -62,15 +62,20 @@ void PlayerControllerSystem(entt::registry& registry)
 		auto& entityPhysics = view.get<RigidBodyComponent>(entity);
 
 		Vector2f velocity = Vector2f(0.f, 0.f);
+		velocity.y = entityPhysics.GetLinearVelocity().y;
+
 		if (entityInput.left)
 			velocity.x -= 500.f;
 
 		if (entityInput.right)
 			velocity.x += 500.f;
 
+		if (entityInput.jump && velocity.y < 1.f)
+			velocity.y = -500.f;
 		if (entityInput.jump)
 			cpBodyApplyImpulseAtWorldPoint(entityPhysics.GetBody(), cpv(0.f, -1000.f), cpBodyGetPosition(entityPhysics.GetBody()));
 
+		entityPhysics.SetLinearVelocity(velocity);
 		float velY = cpBodyGetVelocity(entityPhysics.GetBody()).y;
 		cpBodySetVelocity(entityPhysics.GetBody(), cpv(velocity.x, velY));
 	}
@@ -93,7 +98,7 @@ int main()
 	SDLpp sdl;
 
 	SDLppWindow window("A4Engine", 1280, 720);
-	SDLppRenderer renderer(window, "", SDL_RENDERER_PRESENTVSYNC);
+	SDLppRenderer renderer(window, "direct3d11", SDL_RENDERER_PRESENTVSYNC);
 
 	ResourceManager resourceManager(renderer);
 	InputManager inputManager;
@@ -127,80 +132,49 @@ int main()
 	AnimationSystem animSystem(registry);
 	RenderSystem renderSystem(renderer, registry);
 	VelocitySystem velocitySystem(registry);
+	PhysicsSystem physicsSystem(registry);
+	physicsSystem.SetGravity({ 0.f, 981.f });
+	physicsSystem.SetDamping(0.9f);
 
 	entt::entity cameraEntity = CreateCamera(registry);
 
 	entt::entity house = CreateHouse(registry);
-	registry.get<Transform>(house).SetPosition({ 750.f, 275.f });
+	registry.get<RigidBodyComponent>(house).TeleportTo({ 750.f, 275.f });
 	registry.get<Transform>(house).SetScale({ 2.f, 2.f });
 
 	entt::entity runner = CreateRunner(registry, spriteSheet);
 	registry.get<Transform>(runner).SetPosition({ 300.f, 250.f });
 
-	//entt::entity box = CreateBox(registry);
-
-	Uint64 lastUpdate = SDL_GetPerformanceCounter();
+	std::shared_ptr<CollisionShape> boxShape = std::make_shared<BoxShape>(256.f, 256.f);
+	
+	entt::entity box = CreateBox(registry, boxShape);
+	registry.get<RigidBodyComponent>(box).TeleportTo({ 400.f, 400.f }, 15.f);
 
 	InputManager::Instance().BindKeyPressed(SDL_KeyCode::SDLK_r, "PlayRun");
 
 	InputManager::Instance().OnAction("PlayRun", [&](bool pressed)
+	{
+		if (pressed)
 		{
-			if (pressed)
-				registry.get<SpritesheetComponent>(runner).PlayAnimation("run");
-			else
-				registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
-		});
+			entt::entity box2 = CreateBox(registry, boxShape);
+			registry.get<RigidBodyComponent>(box2).TeleportTo({ 400.f, 400.f }, 15.f);
 
-	cpSpace* space = cpSpaceNew();
-	cpSpaceSetGravity(space, { 0.f, 981.f });
-	cpSpaceSetDamping(space, 0.5f);
+			registry.get<SpritesheetComponent>(runner).PlayAnimation("run");
+		}
+		else
+			registry.get<SpritesheetComponent>(runner).PlayAnimation("idle");
+	});
 
-	cpBody* boxBody = cpBodyNew(100.f, cpMomentForBox(100.f, 256, 256));
-	cpSpaceAddBody(space, boxBody);
-	cpBodySetPosition(boxBody, cpv(400.f, 400.f));
-	cpBodySetAngle(boxBody, 15.f * Rad2Deg);
+	// Création du sol
+	std::shared_ptr<CollisionShape> groundShape = std::make_shared<SegmentShape>(Vector2f(0.f, 720.f), Vector2f(10'000.f, 720.f));
 
-	cpShape* boxShape = cpBoxShapeNew(boxBody, 256, 256, 0.f);
-	cpShapeGetCenterOfGravity(boxShape);
-	cpSpaceAddShape(space, boxShape);
-
-	cpBody* floorBody = cpBodyNewStatic();
-
-	cpShape* floorShape = cpSegmentShapeNew(floorBody, cpv(0.f, 720.f), cpv(10'000.f, 720.f), 0.f);
-	cpSpaceAddShape(space, floorShape);
-
-	cpBody* playerBody = cpBodyNew(80.f, std::numeric_limits<float>::infinity());
-	cpShape* playerShape = cpBoxShapeNew(playerBody, 128.f, 256.f, 0.f);
-
-	auto& playerPhysics = registry.get<PhysicsComponent>(runner);
-	playerPhysics.body = playerBody;
-	cpSpaceAddBody(space, playerPhysics.body);
-
-	playerPhysics.shape = playerShape;
-	cpSpaceAddShape(space, playerPhysics.shape);
-
+	entt::entity groundEntity = registry.create();
+	auto& groundPhysics = registry.emplace<RigidBodyComponent>(groundEntity, RigidBodyComponent::Static{});
+	groundPhysics.AddShape(groundShape);
+	
 	InputManager::Instance().BindKeyPressed(SDLK_SPACE, "Jump");
 
-	// Rajoutez un InputComponent (contenant des booléens représentant les contrôles, left/right/jump)
-	// Rajoutez un VelocityComponent sur l'entité runner
-	// Rajoutez une fonction (system), qui modifie la vélocité en fonction de l'input
-
-	PhysicsSystem physicsSystem(registry);
-
-	std::shared_ptr<Shape> shapeRunner = std::make_shared<BoxShape>(128.f, 256.f);
-	registry.get<RigidBodyComponent>(runner).AddShape(physicsSystem.GetSpace(), shapeRunner.get());
-	registry.get<RigidBodyComponent>(runner).SetPosition({ 100,100 });
-
-	//Create shape for box
-	entt::entity box = CreateBox(registry);
-	std::shared_ptr<Shape> shapeBox = std::make_shared<BoxShape>(256.f, 256.f);
-	registry.get<RigidBodyComponent>(box).AddShape(physicsSystem.GetSpace(), shapeBox.get());
-	registry.get<RigidBodyComponent>(box).SetPosition({ 400,400 });
-
-	cpSpaceAddShape(physicsSystem.GetSpace(), floorShape);
-
-	float physicsTimestep = 1.f / 50.f;
-	float physicsAccumulator = 0.f;
+	Uint64 lastUpdate = SDL_GetPerformanceCounter();
 
 	bool isOpen = true;
 	while (isOpen)
@@ -208,8 +182,6 @@ int main()
 		Uint64 now = SDL_GetPerformanceCounter();
 		float deltaTime = (float)(now - lastUpdate) / SDL_GetPerformanceFrequency();
 		lastUpdate = now;
-
-		fmt::print("FPS: {}\n", 1.f / deltaTime);
 
 		SDL_Event event;
 		while (SDLpp::PollEvent(&event))
@@ -230,49 +202,26 @@ int main()
 		HandleCameraMovement(registry, cameraEntity, deltaTime);
 		//HandleRunnerMovement(registry, runner, deltaTime);
 
-		// Objectif : faire en sorte que la physique tourne à pas fixe (fixed delta time)
-
-		physicsAccumulator += deltaTime;
-		while (physicsAccumulator >= physicsTimestep) {
-			cpSpaceStep(physicsSystem.GetSpace(), physicsTimestep);
-			physicsAccumulator -= physicsTimestep;
-		}
-
-		// Box
-		cpVect position = cpBodyGetPosition(boxBody);
-		float rotation = cpBodyGetAngle(boxBody) * Rad2Deg;
-
-		// Player
-		cpVect playerPos = cpBodyGetPosition(playerBody);
-		float playerRot = cpBodyGetAngle(playerBody) * Rad2Deg;
-
-		registry.get<Transform>(runner).SetPosition(Vector2f(playerPos.x, playerPos.y));
-		registry.get<Transform>(box).SetRotation(playerRot);
-
 		animSystem.Update(deltaTime);
 		velocitySystem.Update(deltaTime);
+		physicsSystem.Update(deltaTime);
 		renderSystem.Update(deltaTime);
+
 		PlayerInputSystem(registry);
 		PlayerControllerSystem(registry);
+
+		ImGui::LabelText("FPS", "%f", 1.f / deltaTime);
 
 		EntityInspector("Box", registry, box);
 		EntityInspector("Camera", registry, cameraEntity);
 		EntityInspector("Runner", registry, runner);
 
-		physicsSystem.Update(deltaTime);
+		physicsSystem.DebugDraw(renderer, registry.get<Transform>(cameraEntity).GetTransformMatrix().Inverse());
 
 		imgui.Render();
 
 		renderer.Present();
 	}
-
-	cpSpaceRemoveShape(space, boxShape);
-	cpShapeFree(boxShape);
-
-	cpSpaceRemoveBody(space, boxBody);
-	cpBodyFree(boxBody);
-
-	cpSpaceFree(space);
 
 	return 0;
 }
@@ -306,7 +255,7 @@ void EntityInspector(const char* windowName, entt::registry& registry, entt::ent
 	ImGui::End();
 }
 
-entt::entity CreateBox(entt::registry& registry)
+entt::entity CreateBox(entt::registry& registry, std::shared_ptr<CollisionShape> shape)
 {
 	std::shared_ptr<Sprite> box = std::make_shared<Sprite>(ResourceManager::Instance().GetTexture("assets/box.png"));
 	box->SetOrigin({ 0.5f, 0.5f });
@@ -315,6 +264,9 @@ entt::entity CreateBox(entt::registry& registry)
 	registry.emplace<GraphicsComponent>(entity, std::move(box));
 	registry.emplace<Transform>(entity);
 	registry.emplace<RigidBodyComponent>(entity, 300.f);
+
+	auto& entityPhysics = registry.emplace<RigidBodyComponent>(entity, 250.f);
+	entityPhysics.AddShape(std::move(shape));
 
 	return entity;
 }
@@ -332,9 +284,14 @@ entt::entity CreateHouse(entt::registry& registry)
 {
 	std::shared_ptr<Model> house = ResourceManager::Instance().GetModel("assets/house.model");
 
+	std::shared_ptr<CollisionShape> collider = std::make_shared<ConvexShape>(*house, Matrix3f::Scale({ 2.f, 2.f }));
+
 	entt::entity entity = registry.create();
 	registry.emplace<GraphicsComponent>(entity, std::move(house));
 	registry.emplace<Transform>(entity);
+
+	auto& entityPhysics = registry.emplace<RigidBodyComponent>(entity, RigidBodyComponent::Static{});
+	entityPhysics.AddShape(std::move(collider));
 
 	return entity;
 }
@@ -346,13 +303,17 @@ entt::entity CreateRunner(entt::registry& registry, std::shared_ptr<Spritesheet>
 	sprite->Resize(256, 256);
 	sprite->SetRect(SDL_Rect{ 0, 0, 32, 32 });
 
+	std::shared_ptr<CollisionShape> collider = std::make_shared<BoxShape>(128.f, 256.f);
+
 	entt::entity entity = registry.create();
 	registry.emplace<SpritesheetComponent>(entity, spritesheet, sprite);
 	registry.emplace<GraphicsComponent>(entity, std::move(sprite));
 	registry.emplace<Transform>(entity);
 	registry.emplace<InputComponent>(entity);
-	registry.emplace<RigidBodyComponent>(entity);
 	registry.emplace<PlayerControlled>(entity);
+
+	auto& entityBody = registry.emplace<RigidBodyComponent>(entity, 80.f, std::numeric_limits<float>::infinity());
+	entityBody.AddShape(collider, Vector2f(0.f, 0.f), false);
 
 	return entity;
 }

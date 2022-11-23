@@ -2,7 +2,7 @@ add_rules("mode.debug", "mode.release")
 
 add_requires("chipmunk2d", "entt", "fmt", "libsdl", "libsdl_image", "lz4", "nlohmann_json", "openal-soft", "dr_wav")
 add_requires("imgui", { configs = { sdl2 = true }})
-add_requires("openal-soft", "dr_wav")
+add_requires("openal-soft", "dr_wav", "glew")
 
 set_allowedarchs("windows|x64")
 set_warnings("allextra")
@@ -41,6 +41,12 @@ target("A4Test")
     add_files("src/A4Test/**.cpp")
     add_packages("openal-soft", "dr_wav")
 
+target("A43D")
+    set_kind("binary")
+    add_deps("A4Engine")
+    add_headerfiles("include/A43D/*.h", "include/A43D/*.hpp")
+    add_files("src/A43D/**.cpp")
+    add_packages("glew")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

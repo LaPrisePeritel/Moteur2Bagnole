@@ -84,6 +84,15 @@ const Vector2f& Transform::GetScale() const
 	return m_scale;
 }
 
+Matrix3f Transform::GetTransformMatrix() const
+{
+	Matrix3f transformMatrix = Matrix3f::Translate(m_position) * Matrix3f::Rotate(m_rotation) * Matrix3f::Scale(m_scale);
+	if (m_parent)
+		transformMatrix = transformMatrix * m_parent->GetTransformMatrix();
+
+	return transformMatrix;
+}
+
 void Transform::Rotate(float rotation)
 {
 	m_rotation += rotation;

@@ -18,7 +18,11 @@ m_height(rect.h)
 {
 }
 
+<<<<<<< HEAD
 void Sprite::Draw(SDLppRenderer& renderer, const Matrix3& matrix)
+=======
+void Sprite::Draw(SDLppRenderer& renderer, const Matrix3f& matrix)
+>>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 {
 	SDL_Rect texRect = m_texture->GetRect();
 
@@ -26,6 +30,7 @@ void Sprite::Draw(SDLppRenderer& renderer, const Matrix3& matrix)
 
 	// Calcul de la position des quatre coins du sprite dans le repère du Transform
 	// c'est à cette étape que la translation, rotation et scale du Transform vont s'appliquer
+<<<<<<< HEAD
 	//Vector2f topLeftCorner = transform.TransformPoint(Vector2f(0.f, 0.f) - originPos);
 	//Vector2f topRightCorner = transform.TransformPoint(Vector2f(static_cast<float>(m_width), 0.f) - originPos);
 	//Vector2f bottomLeftCorner = transform.TransformPoint(Vector2f(0.f, static_cast<float>(m_height)) - originPos);
@@ -41,6 +46,12 @@ void Sprite::Draw(SDLppRenderer& renderer, const Matrix3& matrix)
 	auto topR = (Vector2((float)m_width, 0.f) - origin) * matrix;
 	auto botL = (Vector2(0.f, (float)m_height) - origin) * matrix;
 	auto botR = (Vector2((float)m_width, (float)m_height) - origin) * matrix;
+=======
+	Vector2f topLeftCorner = matrix * (Vector2f(0.f, 0.f) - originPos);
+	Vector2f topRightCorner = matrix * (Vector2f(static_cast<float>(m_width), 0.f) - originPos);
+	Vector2f bottomLeftCorner = matrix * (Vector2f(0.f, static_cast<float>(m_height)) - originPos);
+	Vector2f bottomRightCorner = matrix * (Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)) - originPos);
+>>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 
 	// La division étant généralement plus coûteuse que la multiplication, quand on sait qu'on va faire plusieurs divisons par
 	// les mêmes valeurs on peut calculer l'inverse de la valeur pour la multiplier par la suite (X * (1 / Y) == X / Y)

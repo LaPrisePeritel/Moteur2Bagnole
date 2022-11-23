@@ -44,7 +44,11 @@ m_indices(std::move(indices))
 	}
 }
 
+<<<<<<< HEAD
 void Model::Draw(SDLppRenderer& renderer, const Matrix3& matrix)
+=======
+void Model::Draw(SDLppRenderer& renderer, const Matrix3f& matrix)
+>>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 {
 	// On s'assure que les deux tableaux font la même taille (assert crash immédiatement le programme si la condition passée est fausse)
 	assert(m_vertices.size() == m_sdlVertices.size());
@@ -72,6 +76,11 @@ void Model::Draw(SDLppRenderer& renderer, const Matrix3& matrix)
 			m_sdlVertices.data(), static_cast<int>(m_sdlVertices.size()),
 			nullptr, 0);
 	}
+}
+
+const std::vector<ModelVertex>& Model::GetVertices() const
+{
+	return m_vertices;
 }
 
 bool Model::IsValid() const

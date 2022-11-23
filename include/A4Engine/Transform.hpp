@@ -1,6 +1,7 @@
 #pragma once
 
 #include <A4Engine/Export.hpp>
+#include <A4Engine/Matrix3.hpp>
 #include <A4Engine/Vector2.hpp>
 #include <vector>
 
@@ -20,6 +21,7 @@ class A4ENGINE_API Transform
 		const Vector2f& GetPosition() const;
 		float GetRotation() const;
 		const Vector2f& GetScale() const;
+		Matrix3f GetTransformMatrix() const;
 
 		void Rotate(float rotation);
 		void Scale(float scale);

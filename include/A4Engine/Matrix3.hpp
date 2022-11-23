@@ -3,61 +3,49 @@
 #include <A4Engine/Export.hpp>
 #include <A4Engine/Vector2.hpp>
 #include <array>
-#include <vector>
+#include <ostream>
 
-class A4ENGINE_API Matrix3
+// Pas de macro d'export pour les templates (leur code n'étant pas compilé dans la dll)
+template<typename T>
+class Matrix3
 {
-public:
+	public:
 	Matrix3(std::array<std::array<float, 3>, 3> data);
 	Matrix3(float data[3][3]);
 
-	Matrix3() = default;
-	~Matrix3() = default;
+		Matrix3() = default;
+		Matrix3(std::array<T, 3 * 3> values);
 
-	Matrix3(const Matrix3&) = default;
-	Matrix3(Matrix3&&) = default;
-	Matrix3& operator=(const Matrix3&) = default;
-	Matrix3& operator=(Matrix3&&) = default;
+		T Determinant() const;
 
-	const int& GetRows() const;
-	const int& GetCols() const;
-	const std::array<std::array<float, 3>, 3>& GetData() const;
-	std::vector<std::vector<float>> GetDataAsVector() const;
+		Matrix3 Inverse() const;
 
-	void Print() const;
+		Matrix3 Transpose() const;
 
-	float& operator()(int row, int col);
-	const float& operator()(int row, int col) const;
+		T& Value(std::size_t i, std::size_t j);
+		const T& Value(std::size_t i, std::size_t j) const;
 
-	Matrix3 operator/(float value) const;
-	Matrix3 operator*(float value) const;
-	Matrix3 operator/(const Matrix3& other) const;
-	Matrix3 operator*(const Matrix3& other) const;
-	Vector2f operator*(const Vector2f& vector) const;
+		T& operator()(std::size_t i, std::size_t j);
+		const T& operator()(std::size_t i, std::size_t j) const;
 
-	Matrix3 Transpose() const;
-	Matrix3 Inverse() const;
-	Matrix3 Adjugate() const;
-	Matrix3 CofactorMatrix() const;
-	float Cofactor(int row, int col) const;
-	float GetMinor(int row, int col) const;
+		Matrix3 operator*(const Matrix3& rhs) const;
+		Vector2<T> operator*(const Vector2<T>& vec) const;
 
-	static Matrix3 Identity();
+		static Matrix3 Identity();
+		static Matrix3 Rotate(float degreeAngle);
+		static Matrix3 Scale(const Vector2<T>& scale);
+		static Matrix3 Translate(const Vector2<T>& translation);
 
-	static float Determinant(std::vector<std::vector<float>> matrix);
-	static std::vector<std::vector<float>>
-		Submatrix(const std::vector<std::vector<float>>& matrix, int row, int col);
-
-	static Matrix3 Translate(Vector2f position);
-	static Matrix3 Rotate(float angle);
-	static Matrix3 Scale(Vector2f scale);
-
-	static Matrix3 SRT(const Vector2f& scale, const float& angle, const Vector2f& position);
-	static Matrix3 TRS(const Vector2f& position, const float& angle, const Vector2f& scale);
-
-private:
-	int _rows = 3;
-	int _cols = 3;
-
-	std::array<std::array<float, 3>, 3> _data{};
+	private:
+		std::array<T, 3 * 3> m_values;
 };
+
+// Opérateur de flux, permet d'écrire un Matrix3 directement dans std::cout (ou autre flux de sortie)
+template<typename T> std::ostream& operator<<(std::ostream& os, const Matrix3<T>& mat);
+
+// On peut utiliser using pour faire un alias plus facile à écrire
+using Matrix3f = Matrix3<float>;
+
+// Il est relativement courant de séparer le code template dans un fichier annexe, pour clarifier les headers
+// cela peut se faire en incluant un autre fichier (rappel, #include = copier-coller)
+#include <A4Engine/Matrix3.inl>

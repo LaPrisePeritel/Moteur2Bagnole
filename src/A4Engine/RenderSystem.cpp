@@ -16,6 +16,7 @@ m_registry(registry)
 
 void RenderSystem::Update(float /*deltaTime*/)
 {
+<<<<<<< HEAD
     // Sélection de la caméra
     const Transform* cameraTransform = nullptr;
     auto cameraView = m_registry.view<Transform, CameraComponent>();
@@ -28,6 +29,27 @@ void RenderSystem::Update(float /*deltaTime*/)
         Transform& entityTransform = cameraView.get<Transform>(entity);
         cameraTransform = &entityTransform;
     }
+=======
+	// Sélection de la caméra
+	Matrix3f cameraMatrix = Matrix3f::Identity();
+
+	auto cameraView = m_registry.view<Transform, CameraComponent>();
+	bool cameraFound = false;
+	for (entt::entity entity : cameraView)
+	{
+		// Nous avons déjà une caméra ?
+		if (cameraFound)
+			fmt::print(stderr, fg(fmt::color::red), "warning: multiple camera found\n");
+		
+		Transform& entityTransform = cameraView.get<Transform>(entity);
+		cameraMatrix = entityTransform.GetTransformMatrix();
+		cameraMatrix = cameraMatrix.Inverse();
+		cameraFound = true;
+	}
+
+	if (!cameraFound)
+		fmt::print(stderr, fg(fmt::color::red), "warning: no camera found\n");
+>>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 
     if (!cameraTransform)
     {
@@ -35,6 +57,7 @@ void RenderSystem::Update(float /*deltaTime*/)
         return;
     }
 
+<<<<<<< HEAD
     auto view = m_registry.view<Transform, GraphicsComponent>();
     for (entt::entity entity : view)
     {
@@ -45,4 +68,9 @@ void RenderSystem::Update(float /*deltaTime*/)
         Matrix3 matrixTransform = cameraMatrix * entityMatrix;
         entityGraphics.renderable->Draw(m_renderer, matrixTransform);
     }
+=======
+		Matrix3f entityMatrix = entityTransform.GetTransformMatrix();
+		entityGraphics.renderable->Draw(m_renderer, cameraMatrix * entityMatrix);
+	}
+>>>>>>> bba2d7d5c19aec8963b1c4354fae048cc291dbd3
 }
