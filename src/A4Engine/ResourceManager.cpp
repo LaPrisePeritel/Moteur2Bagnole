@@ -2,6 +2,7 @@
 #include <A4Engine/Model.hpp>
 #include <A4Engine/SDLppSurface.hpp>
 #include <A4Engine/SDLppTexture.hpp>
+#include <A4Engine/AudioClip.hpp>
 #include <stdexcept>
 
 ResourceManager::ResourceManager(SDLppRenderer& renderer) :
@@ -90,6 +91,26 @@ const std::shared_ptr<SDLppTexture>& ResourceManager::GetTexture(const std::stri
 	return it->second;
 }
 
+const std::shared_ptr<AudioClip>& ResourceManager::GetAudioClip(const char* audioPath)
+{
+	auto it = m_audioClips.find(audioPath);
+	if (it != m_audioClips.end())
+		return it->second;
+
+	AudioClip audioClip = AudioClip::LoadFromFile(audioPath);
+	if (!audioClip.IsValid())
+	{
+		if (!m_missingAudioClip)
+			m_missingAudioClip = std::make_shared<AudioClip>(std::move(audioClip));
+
+		m_audioClips.emplace(audioPath, m_missingAudioClip);
+		return m_missingAudioClip;
+	}
+
+	it = m_audioClips.emplace(audioPath, std::make_shared<AudioClip>(std::move(audioClip))).first;
+	return it->second;
+}
+
 void ResourceManager::Purge()
 {
 	// On va itérer sur le conteneur tout en enlevant certains éléments pendant l'itération, cela demande un peu de pratique
@@ -115,6 +136,16 @@ void ResourceManager::Purge()
 			++it;
 		else
 			it = m_models.erase(it);
+	}
+	
+	for (auto it = m_audioClips.begin(); it != m_audioClips.end(); )
+	{
+		if (it->second.use_count() > 1)
+			++it;
+		else {
+			it->second->Clear();
+			it = m_audioClips.erase(it);
+		}
 	}
 
 }

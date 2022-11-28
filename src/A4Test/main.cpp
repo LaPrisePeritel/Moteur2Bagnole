@@ -1,6 +1,3 @@
-#include <AL/al.h>
-#include <AL/alc.h>
-#define DR_WAV_IMPLEMENTATION
 #include <A4Engine/CameraComponent.hpp>
 #include <A4Engine/GraphicsComponent.hpp>
 #include <A4Engine/InputManager.hpp>
@@ -11,67 +8,25 @@
 #include <A4Engine/SDLppRenderer.hpp>
 #include <A4Engine/SDLppWindow.hpp>
 #include <dr_wav.h>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <A4Engine/AudioClip.hpp>
+#include <A4Engine/AudioSystem.hpp>
 
 int main()
 {
-	const char* deviceList = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-	std::vector<std::string> devices;
-	while (true)
-	{
-		std::size_t length = std::strlen(deviceList);
-		if (length == 0)
-			break;
-
-		devices.emplace_back(deviceList, length);
-
-		deviceList += length + 1;
-	}
-
-	ALCdevice* device = alcOpenDevice(nullptr);
-
-	ALCcontext* context = alcCreateContext(device, nullptr);
-	alcMakeContextCurrent(context);
-
-	// On va faire des trucs !
-	drwav wav;
-	if (!drwav_init_file(&wav, "assets/siren.wav", nullptr))
-	{
-		std::cout << "failed to load file" << std::endl;
-		return 0;
-	}
-
-	std::vector<std::int16_t> samples(wav.totalPCMFrameCount * wav.channels);
-	drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, samples.data());
-
-	ALuint buffer;
-	alGenBuffers(1, &buffer);
-
-	alBufferData(buffer, 
-		(wav.channels == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, 
-		samples.data(), 
-		samples.size() * sizeof(std::int16_t),
-		wav.sampleRate);
-
-	drwav_uninit(&wav);
-
-	ALuint source;
-	alGenSources(1, &source);
-
-	alSourcei(source, AL_BUFFER, buffer);
-	alSourcei(source, AL_LOOPING, AL_TRUE);
-
-	alListener3f(AL_POSITION, 640.f / 100.f, 360.f / 100.f, 0.f);
-
-	alSourcePlay(source);
-
 	SDLpp sdl;
 	SDLppWindow window("Test audio", 1280, 720);
 	SDLppRenderer renderer(window, "", SDL_RENDERER_PRESENTVSYNC);
 
 	ResourceManager resourceManager(renderer);
+
+	AudioSystem audioSystem;
+	audioSystem.SetGeneralGain(0.1f);
+
+	// On va faire des trucs !
+	auto audioClip = ResourceManager::Instance().GetAudioClip("assets/siren.wav");
+	audioClip->SetLooping(true);
+	audioClip->Play();
+
 	InputManager inputManager;
 
 	inputManager.BindKeyPressed(SDLK_LEFT, "MoveLeft");
@@ -117,20 +72,14 @@ int main()
 		Vector2f ambulancePos = ambulanceTransform.GetGlobalPosition();
 		Vector2f velocity = (ambulancePos - oldPosition) / deltaTime;
 
-		alSource3f(source, AL_POSITION, ambulancePos.x / 100.f, ambulancePos.y / 100.f, 0.f);
-		alSource3f(source, AL_VELOCITY, velocity.x / 100.f, velocity.y / 100.f, 0.f);
+		Vector3f ambulanceSourcePos(ambulancePos.x / 100.f, ambulancePos.y / 100.f, 0.f);
+		Vector3f ambulanceSourceVel(velocity.x / 100.f, velocity.y / 100.f, 0.f);
+
+		audioClip->SetSourcePosition(ambulanceSourcePos);
+		audioClip->SetSourceVelocity(ambulanceSourceVel);
 
 		ambulance.Draw(renderer, cameraTransform.GetTransformMatrix() * ambulanceTransform.GetTransformMatrix());
 
 		renderer.Present();
 	}
-
-	// Libération
-	alDeleteSources(1, &source);
-	alDeleteBuffers(1, &buffer);
-
-	alcMakeContextCurrent(nullptr);
-	alcDestroyContext(context);
-
-	alcCloseDevice(device);
 }
