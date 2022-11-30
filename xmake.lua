@@ -40,6 +40,12 @@ target("A4Test")
     add_headerfiles("include/A4Test/*.h", "include/A4Test/*.hpp")
     add_files("src/A4Test/**.cpp")
 
+target("A4Proto")
+    set_kind("binary")
+    add_deps("A4Engine")
+    add_headerfiles("include/A4Proto/*.h", "include/A4Proto/*.hpp")
+    add_files("src/A4Proto/**.cpp")
+
 target("A43D")
     set_kind("binary")
     add_deps("A4Engine")
